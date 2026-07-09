@@ -2,7 +2,6 @@
 name = "soundstages"
 author = "ebro"
 description = "Audio feature evaluation across the popularity distribution via regression."
-readme = "README.md"
 license = "MIT"
 version = "0.1.0"
 dependencies = [

@@ -10,6 +10,7 @@ DATA = BASE / 'data'
 RAW = DATA / 'raw'
 INPUTS = DATA / 'input'
 NOMINEES = INPUTS / 'nominees.parquet'
+LISTENERS = INPUTS / 'listeners.parquet'
 
 # Sampling/ingestion constants
 GENRE_COUNT = 126

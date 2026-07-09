@@ -12,10 +12,9 @@ VIOLATIONS = {
 LOOKUP = {vio for cat, vios in VIOLATIONS.items() for vio in vios}
 
 def depunctuate(name: str) -> str:
-    name = name.replace('&', ' ')
-    name = name.replace('.', ' ')
-    name = name.replace(',', ' ')
-    name = name.replace('\'', ' ')
+    punctuation = ['&', '.', '?', ',', '!', '\'', '+']
+    for p in punctuation:
+        name = name.replace(p, '')
     return name
 
 def is_artist(name: str) -> tuple[bool, str | None]:

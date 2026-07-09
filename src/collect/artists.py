@@ -7,7 +7,9 @@ from rule import is_artist
 from config import NOMINEES
 
 sub_strings = {sub: urllib.parse.quote(sub) for sub in SUBS}
-headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.5 Safari/605.1.15'}
+headers = {
+    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.5 Safari/605.1.15'
+}
 
 artists = {}
 count = 0
@@ -29,7 +31,7 @@ for sub, string in sub_strings.items():
 
     print(f'{sub_count} artists returned for {sub}.')
     count += sub_count
-    
+
 print(f'{count} total artists nominated.')
 
 artists = {

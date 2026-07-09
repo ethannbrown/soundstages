@@ -14,8 +14,7 @@ VIOLATIONS = {
 LOOKUP = {vio for cat, vios in VIOLATIONS.items() for vio in vios}
 
 def depunctuate(name: str) -> str:
-    punctuation = ['&', '.', '?', ',', '!', '\'', '+', '_']
-    for p in punctuation:
+    for p in '&.?,!\'+_':
         name = name.replace(p, '')
     return name
 

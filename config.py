@@ -11,8 +11,11 @@ RAW = DATA / 'raw'
 INPUTS = DATA / 'input'
 NOMINEES = INPUTS / 'nominees.parquet'
 LISTENERS = INPUTS / 'listeners.parquet'
+LOG = RAW / 'log.csv'
 
-# Sampling/ingestion constants
+# Web scraping constants
+MAX_RETRIES = 3
+
 GENRE_COUNT = 126
 GENRE_FLOOR = 10
 GENRE_CEIL = 250

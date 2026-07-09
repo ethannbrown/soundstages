@@ -32,7 +32,7 @@ MAINS = {
                    'techno', 'new wave', 'dubstep', 'big beat', 'trance', 'breakbeat', 'hyperpop', 'jungle', 'synthwave'],
 
     'latin': ['urbano latino', 'trap latino', 'reggaeton', 'latin hip hop', 'latin pop', 'salsa', 
-              'samba', 'tango', 'bossa nova','pagode', 'forro', 'sertanejo', 'bachata', 'bolero'],
+              'samba', 'tango', 'bossa nova', 'pagode', 'forro', 'sertanejo', 'bachata', 'bolero'],
 
     'country': ['country', 'country road', 'contemporary country', 'country rock', 
                 'classic country pop', 'country dawn', 'outlaw country', 'nashville sound'],
@@ -44,7 +44,7 @@ MAINS = {
               'chicago blues', 'texas blues', 'memphis blues', 'louisiana blues', 'new orleans blues'],
 
     'jazz': ['jazz', 'bebop', 'hard bop', 'cool jazz', 'vocal jazz', 'contemporary jazz', 
-             'swing', 'free jazz', 'avant-garde jazz','jazz fusion', 'smooth jazz', 'acid jazz'],
+             'swing', 'free jazz', 'avant-garde jazz', 'jazz fusion', 'smooth jazz', 'acid jazz'],
             
     'ambient': ['ambient', 'drone', 'nu age', 'sound art', 'fourth world', 'drift', 'deep ambient', 'abstract']
 }

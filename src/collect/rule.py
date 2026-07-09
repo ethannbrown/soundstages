@@ -1,5 +1,4 @@
 # Keys denote non-artist categories, values denote strings that are not allowed in the artist name.
-
 VIOLATIONS = {
     'aggregate': ['various', 'compilation', 'compilations', 'sample'],
     'seo': ['sleep', 'noise', 'meditation', 'yoga', 'study', 'lofi', 'lo-fi', 

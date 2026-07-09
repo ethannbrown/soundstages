@@ -1,5 +1,4 @@
 # Derived from Spotify's 126 'seed' genres.
-
 MAINS = {
     'rock': ['rock-and-roll', 'rock', 'album rock', 'classic rock', 'heartland rock', 'hard rock', 'alternative rock', 
              'modern rock', 'glam rock', 'glam metal', 'post-grunge', 'psychedelic rock', 'industrial'],

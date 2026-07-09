@@ -1,7 +1,8 @@
 import urllib.parse
-import requests
+import requests, sys
 import pandas as pd
 
+sys.path.append('.')
 from genres import SUBS
 from rule import is_artist
 from config import NOMINEES

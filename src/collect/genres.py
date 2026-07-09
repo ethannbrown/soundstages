@@ -1,6 +1,6 @@
 # Derived from Spotify's 126 'seed' genres.
 
-GENRES = {
+MAINS = {
     'rock': ['rock-and-roll', 'rock', 'album rock', 'classic rock', 'heartland rock', 'hard rock', 'alternative rock', 
              'modern rock', 'glam rock', 'glam metal', 'post-grunge', 'psychedelic rock', 'industrial'],
 
@@ -27,7 +27,7 @@ GENRES = {
 
     'gospel': ['gospel', 'gospel r&b', 'contemporary gospel'],
 
-    'caribbean': ['reggae', 'dub', 'dancehall', 'ska', 'calypso', 'soca', 'konpa'],
+    'caribbean': ['reggae', 'dub', 'dancehall', 'ska', 'calypso', 'soca', 'kompa'],
 
     'electronic': ['edm', 'electro house', 'dutch house', 'big room', 'progressive house', 'house', 'drum and bass', 
                    'techno', 'new wave', 'dubstep', 'big beat', 'trance', 'breakbeat', 'hyperpop', 'jungle', 'synthwave'],

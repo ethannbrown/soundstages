@@ -20,9 +20,9 @@ def depunctuate(name: str) -> str:
         name = name.replace(p, '')
     return name
 
-def is_artist(name: str) -> tuple[bool, str | None]:
+def is_artist(name: str) -> bool:
     elements = depunctuate(name).lower().split()
     for element in elements:
         if element in LOOKUP:
-            return False, element
-    return True, None
+            return False
+    return True

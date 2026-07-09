@@ -27,7 +27,6 @@ collection = [
 
 [tool.uv]
 package = false
-environments = ["PYTHONPATH=."]
 
 [tool.ruff]
 target-version = "py311"

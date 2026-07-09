@@ -8,7 +8,8 @@ SEED = 3
 BASE = Path(__file__).resolve().parent
 DATA = BASE / 'data'
 RAW = DATA / 'raw'
-INPUT = DATA / 'input'
+INPUTS = DATA / 'input'
+NOMINEES = INPUTS / 'nominees.parquet'
 
 # Sampling/ingestion constants
 GENRE_COUNT = 126

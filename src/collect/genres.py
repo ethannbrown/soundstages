@@ -1,4 +1,4 @@
-# Spotify's 126 'seed' genres. Initial list, unused. All microgenres ("nodes") cover useful items here.
+# Derived from Spotify's 126 'seed' genres.
 
 GENRES = {
     'rock': ['rock-and-roll', 'rock', 'album rock', 'classic rock', 'heartland rock', 'hard rock', 'alternative rock', 

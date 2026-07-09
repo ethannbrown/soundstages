@@ -50,4 +50,4 @@ MAINS = {
     'ambient': ['ambient', 'drone', 'nu age', 'sound art', 'fourth world', 'drift', 'deep ambient', 'abstract']
 }
 
-SUBS = {sub: main for main, subs in GENRES.items() for sub in subs}
+SUBS = {sub: main for main, subs in MAINS.items() for sub in subs}

@@ -21,13 +21,13 @@ for sub, string in sub_strings.items():
     response = requests.get(url, headers=headers)
     data = response.json()
 
-    seed = SUBS[sub]
+    genre = SUBS[sub]
     sub_count = 0
 
     for artist in data[sub]:
         if artist['id'] not in artists:
-            artists[artist['id']] = {'name': artist['name'], 'seeds': set()}
-        artists[artist['id']]['seeds'].add(seed)
+            artists[artist['id']] = {'name': artist['name'], 'genres': set()}
+        artists[artist['id']]['genres'].add(genre)
         sub_count += 1
 
     print(f'{sub_count} artists returned for {sub}.')
@@ -42,7 +42,7 @@ artists = {
 }
 
 rows = [
-    {'id': iden, 'name': data['name'], 'seeds': sorted(data['seeds'])}
+    {'id': iden, 'name': data['name'], 'genres': sorted(data['seeds'])}
      for iden, data in artists.items()
 ]
 df = pd.DataFrame(rows)

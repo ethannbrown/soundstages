@@ -10,6 +10,7 @@ RAW = DATA / 'raw'
 INPUTS = DATA / 'inputs'
 NOMINEES = INPUTS / 'nominees.parquet'
 LISTENERS = INPUTS / 'listeners.parquet'
+RESOLVED = INPUTS / 'resolved.parquet'
 LOG = RAW / 'log.csv'
 
 # Sampling/ingestion constants

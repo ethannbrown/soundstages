@@ -1,5 +1,5 @@
+import random, requests, sys, time
 import pandas as pd
-import sys, requests, time, random
 from bs4 import BeautifulSoup
 
 sys.path.append('.') # Run from project root

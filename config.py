@@ -1,4 +1,3 @@
-# Importing necessary libraries
 from pathlib import Path
 
 # Constant seed for reproducibility
@@ -15,8 +14,7 @@ LOG = RAW / 'log.csv'
 
 # Sampling/ingestion constants
 MAX_RETRIES = 3
-GENRE_COUNT = 126
+GENRE_COUNT = 18
 GENRE_FLOOR = 10
 GENRE_CEIL = 250
-INJECTION_SHARE = 0.1
-LISTENER_FLOOR = None
+LISTENER_FLOOR = 100

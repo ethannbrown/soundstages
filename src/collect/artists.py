@@ -3,17 +3,18 @@ import requests, sys
 import pandas as pd
 
 sys.path.append('.') # Run from project root
-from genres import SUBS
-from rule import is_artist
 from config import NOMINEES
+from rule import is_artist
+from genres import SUBS
 
-sub_strings = {sub: urllib.parse.quote(sub) for sub in SUBS}
 headers = {
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36'
 }
 
 artists = {}
 count = 0
+
+sub_strings = {sub: urllib.parse.quote(sub) for sub in SUBS}
 
 # Nominates all artists from the sub(genre) for feature collection on discographies
 for sub, string in sub_strings.items():

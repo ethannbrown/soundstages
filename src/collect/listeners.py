@@ -35,9 +35,17 @@ def get_listeners(iden: str) -> int:
             time.sleep(sleep)
             continue
 
+        elif resp.status_code == 403:
+            return -2
+
         else:
-            print(f'HTTP {resp.status_code} error for {iden}')
-            return None
+            attempts += 1
+            if attempts > MAX_RETRIES:
+                print(f'HTTP {resp.status_code} error for {iden}')
+                return -3
+            
+            time.sleep(30)
+            continue
 
     soup = BeautifulSoup(resp.text, 'html.parser')
     text = soup.find(attrs={'data-testid': 'monthly-listeners-label'})
@@ -60,12 +68,17 @@ for iden in noms['id']:
     listeners = get_listeners(iden)
 
     if listeners == -1:
-        print('HTTP 429 error, max retries hit. Break.')
+        print('HTTP 429 error, max retries hit. Breaking.')
+        completed = False
+        break
+
+    if listeners == -2:
+        print('HTTP 403 error, forbidden. Breaking.')
         completed = False
         break
 
     with open(LOG, 'a') as f:
-        if listeners is None:
+        if listeners is None or listeners == -3:
             f.write(f'{iden},\n')
         else:
             f.write(f'{iden},{listeners}\n')

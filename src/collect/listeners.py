@@ -43,7 +43,7 @@ def get_listeners(iden: str) -> int:
     text = soup.find(attrs={'data-testid': 'monthly-listeners-label'})
 
     if text is None:
-        return None
+        return 0
     
     listeners = text.get_text(strip=True)
     listeners = int(''.join(filter(str.isdigit, listeners)))

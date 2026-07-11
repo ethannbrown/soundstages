@@ -8,10 +8,11 @@ from config import NOMINEES, LISTENERS, LOG, MAX_RETRIES
 # Resumability
 done = set()
 try:
-    prev = pd.read_csv(LOG, names=['id', 'listeners'])
+    prev = pd.read_csv(LOG, header=0)
     done = set(prev['id'])
 except FileNotFoundError:
-    pass
+    with open(LOG, 'w') as f:
+        f.write('id,listeners\n')
 
 # Returns present monthly listener counts; sentinel values for errors
 def get_listeners(iden: str) -> int:
@@ -88,5 +89,5 @@ for iden in noms['id']:
     time.sleep(random.uniform(0.75, 1.25))
 
 if completed:
-    df = pd.read_csv(LOG, names=['id', 'listeners'])
+    df = pd.read_csv(LOG, header=0)
     df.to_parquet(LISTENERS)

@@ -16,7 +16,7 @@ count = 0
 
 sub_strings = {sub: urllib.parse.quote(sub) for sub in SUBS}
 
-# Nominates all artists from the sub(genre) for feature collection on discographies
+# Nominate all artists from each sub(genre) for feature collection on discographies
 for sub, string in sub_strings.items():
     url = f'https://everynoise.com/api/genre/{string}'
     response = requests.get(url, headers=headers)
@@ -43,7 +43,7 @@ artists = {
 }
 
 rows = [
-    {'id': iden, 'name': data['name'], 'genres': sorted(data['seeds'])}
+    {'id': iden, 'name': data['name'], 'genres': sorted(data['genres'])}
      for iden, data in artists.items()
 ]
 df = pd.DataFrame(rows)

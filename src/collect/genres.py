@@ -25,9 +25,10 @@ MAINS = {
 
     'gospel': ['contemporary gospel', 'gospel', 'gospel r&b'], 
 
-    'hip-hop': ['alternative hip hop', 'conscious hip hop', 'crunk', 'detroit hip hop', 'drill', 'east coast hip hop', 'experimental hip hop', 
-                'gangster rap', 'g funk', 'hardcore hip hop', 'hip hop', 'hyphy', 'plugg', 'psychedelic hip hop', 'rage rap', 'rap', 
-                'southern hip hop', 'trap', 'trip hop', 'uk hip hop', 'underground hip hop', 'west coast rap'], 
+    'hip-hop': ['alternative hip hop', 'conscious hip hop', 'crunk', 'detroit hip hop', 'drill', 'east coast hip hop', 
+                'experimental hip hop', 'gangster rap', 'g funk', 'hardcore hip hop', 'hip hop', 'hyphy', 'plugg', 
+                'psychedelic hip hop', 'rage rap', 'rap', 'southern hip hop', 'trap', 'trip hop', 'uk hip hop', 
+                'underground hip hop', 'west coast rap'], 
 
     'indie': ['baroque pop', 'bedroom pop', 'chamber pop', 'indie jazz', 'indie pop', 'indie soul', 'pov: indie'], 
 

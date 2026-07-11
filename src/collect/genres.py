@@ -1,6 +1,6 @@
 # An expansion (and sophistication) of Spotify's 126 "seed" genres
 MAINS = {
-    'african': ['afrobeats', 'afropop', 'alte', 'amapiano', 'azonto', 'higlife'], 
+    'african': ['afrobeats', 'afropop', 'alte', 'amapiano', 'azonto', 'highlife'], 
 
     'ambient': ['abstract', 'ambient', 'deep ambient', 'drift', 'drone', 'fourth world', 'nu age', 'sound art'], 
 

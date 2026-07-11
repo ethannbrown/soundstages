@@ -1,6 +1,6 @@
 # soundstages
-| **GENRE** | **COLLECTED** | **MEDIAN LISTENERS** |
-| :--- | :---: | ---: |
+| **GENRE** | **COLLECTED** | **MDN. LISTENERS** |
+| :--- | :---: | :---: |
 | electronic | 2260 | 77805.5 |
 | latin | 2179 | 313512.0 |
 | hip-hop | 2057 | 112018.0 |

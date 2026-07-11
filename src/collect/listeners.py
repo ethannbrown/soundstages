@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 sys.path.append('.') # Run from project root
 from config import NOMINEES, LISTENERS, LOG, MAX_RETRIES
 
+# Resumability
 done = set()
 try:
     prev = pd.read_csv(LOG, names=['id', 'listeners'])
@@ -12,6 +13,7 @@ try:
 except FileNotFoundError:
     pass
 
+# Returns present monthly listener counts; sentinel values for errors
 def get_listeners(iden: str) -> int:
     url = f'https://open.spotify.com/artist/{iden}'
 

@@ -30,6 +30,6 @@ for string in batches:
                 resolved[iden] = SUBS[genre]
                 break
 
-noms['genres'] = noms['id'].map(resolved)
-noms = noms.rename(columns={'genres': 'genre'})
+noms['genre'] = noms['id'].map(resolved)
+noms = noms.drop(columns='genres')
 noms.to_parquet(RESOLVED)

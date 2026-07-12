@@ -19,8 +19,7 @@ sub_strings = {sub: urllib.parse.quote(sub) for sub in SUBS}
 # Nominate all artists from each sub(genre) for feature collection on discographies
 for sub, string in sub_strings.items():
     url = f'https://everynoise.com/api/genre/{string}'
-    response = requests.get(url, headers=headers)
-    data = response.json()
+    data = requests.get(url, headers=headers).json
 
     genre = SUBS[sub]
     sub_count = 0

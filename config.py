@@ -11,6 +11,7 @@ INPUTS = DATA / 'inputs'
 NOMINEES = INPUTS / 'nominees.parquet'
 LISTENERS = INPUTS / 'listeners.parquet'
 RESOLVED = INPUTS / 'resolved.parquet'
+ARTISTS = INPUTS / 'artists.parquet'
 LOG = RAW / 'log.csv'
 
 # Sampling/ingestion constants

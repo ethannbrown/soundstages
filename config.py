@@ -16,5 +16,5 @@ LOG = RAW / 'log.csv'
 
 # Sampling/ingestion constants
 MAX_RETRIES = 3
-GENRE_COUNT = 18
+GENRE_COUNT = 19
 LISTENER_FLOOR = 100

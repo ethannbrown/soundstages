@@ -12,7 +12,9 @@ NOMINEES = INPUTS / 'nominees.parquet'
 LISTENERS = INPUTS / 'listeners.parquet'
 RESOLVED = INPUTS / 'resolved.parquet'
 ARTISTS = INPUTS / 'artists.parquet'
-LOG = RAW / 'log.csv'
+ALBUMS = INPUTS / 'albums.parquet'
+LOG_L = RAW / 'logL.csv'
+LOG_A = RAW / 'logA.csv'
 
 # Sampling/ingestion constants
 MAX_RETRIES = 3

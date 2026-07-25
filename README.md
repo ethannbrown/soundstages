@@ -1,5 +1,5 @@
 # soundstages
-| **GENRE** | **COLLECTED** | **MDN. LISTENERS** |
+| **Genre** | **Collected** | **MDN. Listeners** |
 | :--- | :---: | :---: |
 | Electronic | 2260 | 77,805.5 |
 | Latin | 2179 | 313,512 |

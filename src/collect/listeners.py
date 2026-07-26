@@ -3,15 +3,15 @@ import pandas as pd
 from bs4 import BeautifulSoup
 
 sys.path.append('.') # Run from project root
-from config import NOMINEES, LISTENERS, LOG, MAX_RETRIES
+from config import NOMINEES, LISTENERS, LOGL, MAX_RETRIES
 
 # Resumability
 done = set()
 try:
-    prev = pd.read_csv(LOG, header=0)
+    prev = pd.read_csv(LOGL, header=0)
     done = set(prev['id'])
 except FileNotFoundError:
-    with open(LOG, 'w') as f:
+    with open(LOGL, 'w') as f:
         f.write('id,listeners\n')
 
 # Returns present monthly listener counts; sentinel values for errors
@@ -80,7 +80,7 @@ for iden in noms['id']:
         completed = False
         break
 
-    with open(LOG, 'a') as f:
+    with open(LOGL, 'a') as f:
         if listeners is None or listeners == -3:
             f.write(f'{iden},\n')
         else:
@@ -89,5 +89,5 @@ for iden in noms['id']:
     time.sleep(random.uniform(0.75, 1.25))
 
 if completed:
-    df = pd.read_csv(LOG, header=0)
+    df = pd.read_csv(LOGL, header=0)
     df.to_parquet(LISTENERS)

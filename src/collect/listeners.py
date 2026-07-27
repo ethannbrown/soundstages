@@ -26,7 +26,7 @@ def get_listeners(iden: str) -> int:
             break
 
         elif resp.status_code == 404:
-            print(f'HTTP 404 error for {iden}')
+            print(f'HTTP 404 error for {iden}.')
             return None
         
         elif resp.status_code == 429:
@@ -44,7 +44,7 @@ def get_listeners(iden: str) -> int:
         else:
             attempts += 1
             if attempts > MAX_RETRIES:
-                print(f'HTTP {resp.status_code} error for {iden}')
+                print(f'HTTP {resp.status_code} error for {iden}.')
                 return -3
             
             time.sleep(30)

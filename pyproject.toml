@@ -23,6 +23,7 @@ collection = [
     "requests >= 2.31",
     "beautifulsoup4 >= 4.12",
     "python-dotenv >= 1.0.1",
+    "spotipy >= 2.24",
 ]
 
 [tool.uv]

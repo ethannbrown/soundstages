@@ -14,6 +14,7 @@ RESOLVED = INPUTS / 'resolved.parquet'
 ARTISTS = INPUTS / 'artists.parquet'
 ALBUMS = INPUTS / 'albums.parquet'
 LOG_L = RAW / 'logL.csv'
+LOG_R = RAW / 'logR.csv'
 LOG_A = RAW / 'logA.json'
 
 # Sampling/ingestion constants

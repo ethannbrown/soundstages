@@ -1,4 +1,4 @@
-# An expansion (and sophistication) of Spotify's 126 "seed" genres
+# An expansion of Spotify's 126 "seed" genres
 MAINS = {
     'african': ['afrobeats', 'afropop', 'alte', 'amapiano', 'azonto', 'highlife'], 
 

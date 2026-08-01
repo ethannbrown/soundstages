@@ -75,7 +75,7 @@ for iden in noms['id']:
         completed = False
         break
 
-    if listeners == -2:
+    elif listeners == -2:
         print('HTTP 403 error, forbidden. Breaking.')
         completed = False
         break

@@ -13,11 +13,15 @@ LISTENERS = INPUTS / 'listeners.parquet'
 RESOLVED = INPUTS / 'resolved.parquet'
 ARTISTS = INPUTS / 'artists.parquet'
 ALBUMS = INPUTS / 'albums.parquet'
+ALBUMS_CLEAN = INPUTS / 'albums_clean.parquet'
+TRACKS = INPUTS / 'tracks.parquet'
 LOG_L = RAW / 'logL.csv'
 LOG_R = RAW / 'logR.csv'
 LOG_A = RAW / 'logA.json'
+LOG_T = RAW / 'logT.json'
 
 # Sampling/ingestion constants
 MAX_RETRIES = 3
+MAX_WORKERS = 4
 GENRE_COUNT = 19
 LISTENER_FLOOR = 100

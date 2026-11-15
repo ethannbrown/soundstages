@@ -20,7 +20,7 @@ ids = pd.read_parquet(IDS).dropna()
 cols = ['uuid', 'albumID', 'title', 'type', 'released', 'popularity', 'artists', 'tracks']
 
 # Returns list of all artist records
-def get_records(iden: str) -> list | int:
+def get_records(iden: str) -> list | int | None:
     total, page = None, 0
 
     records = []

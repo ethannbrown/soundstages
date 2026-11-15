@@ -19,7 +19,7 @@ except FileNotFoundError:
         f.write('id,listeners\n')
 
 # Returns present monthly listener counts; sentinel values for errors
-def get_listeners(iden: str) -> int:
+def get_listeners(iden: str) -> int | None:
     url = f'https://open.spotify.com/artist/{iden}'
 
     attempts = 0

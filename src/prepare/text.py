@@ -6,7 +6,7 @@ import pandas as pd
 # Title rules shared by clean_albums.py and clean_tracks.py.
 
 
-def clean_text(title):
+def clean_text(title: str) -> str:
     s = unicodedata.normalize('NFKC', title).lower()
     for a, b in [('’', "'"), ('‘', "'"), ('“', '"'), ('”', '"'), ('&', ' and ')]:
         s = s.replace(a, b)
@@ -16,7 +16,7 @@ def clean_text(title):
 # Tracks
 
 # Only matches track "labels" within brackets or after a dash
-def in_label(words):
+def in_label(words: str) -> re.Pattern:
     bracket = rf'[\(\[][^\)\]]*(?:{words})[^\)\]]*[\)\]]'
     dash = rf'\s+[-–—]\s*[^-–—]*(?:{words})'
     return re.compile(f'{bracket}|{dash}', re.I)
@@ -43,7 +43,7 @@ GENERIC = re.compile(r'^(?:intro|outro|interlude|skit|untitled|prelude|reprise|t
 FEAT = re.compile(r'[\(\[]\s*(?:feat\.?|ft\.?|featuring|with)\s', re.I)
 
 # Strips every label for a normalized dataset
-def base(title):
+def base(title: str | None) -> str:
     if pd.isna(title):
         return ''
     s = re.sub(r'\s*[\(\[][^\)\]]*[\)\]]', '', clean_text(title))
@@ -51,7 +51,7 @@ def base(title):
     return re.sub(r'\s+', ' ', s).strip()
 
 # Recording key: strip only NEUTRAL labels, so "Song - Remastered" matches "Song" but "Song (Live)" doesn't
-def recording_key(title):
+def recording_key(title: str | None) -> str:
     if pd.isna(title):
         return ''
     s = re.sub(rf'\s*[\(\[][^\)\]]*(?:{NEUTRAL})[^\)\]]*[\)\]]', '', clean_text(title))
@@ -101,7 +101,7 @@ ALT = '|'.join(PATTERNS + list(CREDITS))
 BRACKET = re.compile(rf'[\(\[][^\)\]]*(?:{ALT})[^\)\]]*[\)\]]', re.I)
 DASH = re.compile(rf'\s+[-\u2013\u2014]\s*[^-\u2013\u2014]*(?:{ALT}).*$', re.I)
 
-def normalize_title(title):
+def normalize_title(title: str | None) -> str | None:
     if pd.isna(title):
         return title
 

@@ -21,7 +21,7 @@ albums = pd.read_parquet(ALBUMS_CLEAN)
 cols = ['albumID', 'uuid', 'trackID', 'title', 'duration', 'popularity', 'isrc', 'artists']
 
 # Returns list of all tracks on an album
-def get_tracks(iden: str, uuid: str) -> list | int:
+def get_tracks(iden: str, uuid: str) -> list | int | None:
     total, page = None, 0
 
     tracks = []

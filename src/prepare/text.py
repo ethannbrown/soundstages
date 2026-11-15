@@ -23,7 +23,7 @@ def in_label(words):
 
 # Songs with near identical audio
 NEAR_COPIES = in_label(r'instrumental|\binst\b\.?|off[\s-]?vocal|a\s*cappella|karaoke|clean(?:\s+version)?|edited'
-                      r'|radio\s+edit|sped[\s-]?up|slowed|nightcore|\b8d\b|tv\s*size')
+                      r'|radio\s+edit|sped[\s-]?up|slowed|\bscrewed\b(?!\s+up\s+click)|nightcore|\b8d\b|tv\s*size')
 
 # e.g., J mixes, spoken commentary
 NOT_SONGS = in_label(r'\basot\s*\d+|\bmixed\b|mix\s+cut|continuous(?:\s+dj)?\s+mix|commentary|interview')

@@ -13,6 +13,10 @@ import pytest
         ('Song - Off Vocal', True),
         ('Song (Radio Edit)', True),
         ('Song (Sped Up)', True),
+        ('Swang (Screwed)', True),
+        ('Song - Chopped & Screwed', True),
+        ('Song (Chopped and Screwed)', True),
+        ('Song (feat. Z-Ro of Screwed Up Click)', False),
         ('Mr. Clean', False),
         ('Instrumental Song', False),
         ('Song (Live)', False),
@@ -40,8 +44,6 @@ def test_near_copies_clean_false_positives(rules, title):
     'title',
     [
         'Okay - Acapella',
-        'Swang (Screwed)',
-        'Song - Chopped & Screwed',
     ],
 )
 def test_near_copies_missed(rules, title):

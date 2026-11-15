@@ -1,11 +1,12 @@
-import sys, os, csv, requests
-import time, random
+import sys, os, csv
+import time
 import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import pandas as pd
 
 sys.path.append('.') # Run from project root
-from config import TRACKS_CLEAN, FEATURES, LOG_F, MAX_RETRIES
+from config import TRACKS_CLEAN, FEATURES, LOG_F
+from api import get
 
 WORKERS = int(sys.argv[1]) if len(sys.argv) > 1 else 8
 BATCH = 40
@@ -24,49 +25,22 @@ else:
 idens = [t for t in pd.read_parquet(TRACKS_CLEAN, columns=['trackID'])['trackID'] if t not in done]
 batches = [idens[i:i + BATCH] for i in range(0, len(idens), BATCH)]
 
-headers = {
-  'Accept': 'application/json'
-}
-
 # Returns one row per requested track; tracks with no features get empty values
 def get_features(batch: list) -> list | int:
     url = f"https://api.reccobeats.com/v1/audio-features?ids={','.join(batch)}"
+    data = get(url, stop)
 
-    attempts = 0
-    while True:
-        if stop.is_set():
-            return -4
+    # 404: none of these tracks have features
+    if data is None:
+        return [[t] + [None] * len(FEATS) for t in batch]
 
-        resp = requests.get(url, headers=headers)
+    # A sentinel from api.get, -1 to -4
+    if isinstance(data, int):
+        return data
 
-        if resp.status_code == 200:
-            found = {t['id']: t for t in resp.json()['content']}
-            time.sleep(random.uniform(0.75, 1.25))
-            return [[t] + ([found[t].get(f) for f in FEATS] if t in found else [None] * len(FEATS))
-                    for t in batch]
-
-        elif resp.status_code == 404:
-            return [[t] + [None] * len(FEATS) for t in batch]
-
-        elif resp.status_code == 429:
-            attempts += 1
-            if attempts > MAX_RETRIES:
-                return -1
-
-            sleep = int(resp.headers.get('Retry-After', 30))
-            time.sleep(sleep)
-            continue
-
-        elif resp.status_code == 403:
-            return -2
-
-        else:
-            attempts += 1
-            if attempts > MAX_RETRIES:
-                return -3
-
-            time.sleep(45)
-            continue
+    found = {t['id']: t for t in data['content']}
+    return [[t] + ([found[t].get(f) for f in FEATS] if t in found else [None] * len(FEATS))
+            for t in batch]
 
 stop = threading.Event()
 

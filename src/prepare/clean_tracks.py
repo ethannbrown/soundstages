@@ -40,8 +40,8 @@ print(f'Dropped {n - len(df):,} mix segments and commentary')
 df['base'] = df['title'].map(base)
 is_copy = df['title'].fillna('').str.contains(NEAR_COPIES)
 generic_base = df['base'].str.match(GENERIC)
-originals = set(zip(df.loc[~is_copy, 'uuid'], df.loc[~is_copy, 'base']))
-has_original = pd.Series([(u, b) in originals for u, b in zip(df['uuid'], df['base'])], index=df.index)
+originals = set(zip(df.loc[~is_copy, 'uuid'], df.loc[~is_copy, 'base'], strict=True))
+has_original = pd.Series([(u, b) in originals for u, b in zip(df['uuid'], df['base'], strict=True)], index=df.index)
 drop = is_copy & has_original & ~generic_base
 
 n = len(df)
@@ -87,7 +87,8 @@ df = (df.sort_values(['popularity', 'trackID'], ascending=[False, True])
 print(f'Collapsed {n - len(df):,} reissues')
  
 # Step 9: Artist count, before the artists column is dropped
-df['n_artists'] = [len({a['id'] for a in lst} | {u}) for lst, u in zip(df['artists'], df['uuid'].astype(str))]
+df['n_artists'] = [len({a['id'] for a in lst} | {u})
+                   for lst, u in zip(df['artists'], df['uuid'].astype(str), strict=True)]
 df = df.drop(columns='artists')
  
 for col in ['popularity', 'duration', 'year', 'n_artists']:

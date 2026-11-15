@@ -63,7 +63,7 @@ def get_tracks(iden: str, uuid: str) -> list | int:
     return tracks
 
 stop = threading.Event()
-todo = [(a, u) for a, u in zip(albums['albumID'], albums['uuid']) if a not in done]
+todo = [(a, u) for a, u in zip(albums['albumID'], albums['uuid'], strict=True) if a not in done]
 
 count = 0
 start = time.time()

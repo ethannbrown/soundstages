@@ -38,7 +38,8 @@ MAINS = {
     'latin': ['bachata', 'bolero', 'bossa nova', 'forro', 'latin hip hop', 'latin jazz', 'latin pop', 
               'pagode', 'reggaeton', 'salsa', 'samba', 'sertanejo', 'tango', 'trap latino', 'urbano latino'], 
 
-    'metal': ['alternative metal', 'black metal', 'death metal', 'hardcore', 'metal', 'nu metal', 'power metal', 'speed metal', 'thrash metal'], 
+    'metal': ['alternative metal', 'black metal', 'death metal', 'hardcore', 'metal', 
+              'nu metal', 'power metal', 'speed metal', 'thrash metal'], 
 
     'pop': ['alt z', 'bubblegum pop', 'dance pop', 'k-pop', 'new romantic', 'new wave', 
             'new wave pop', 'pop', 'post-teen pop', 'social media pop', 'teen pop', 'uk pop'], 

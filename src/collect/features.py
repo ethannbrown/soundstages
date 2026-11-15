@@ -86,7 +86,8 @@ with ThreadPoolExecutor(max_workers=WORKERS) as executor:
         count += 1
         if count % 1000 == 0:
             minutes = (time.time() - start) / 60
-            print(f'{len(done) + count * BATCH:,} tracks, {count / minutes:.0f} batches/min, {WORKERS} workers', flush=True)
+            print(f'{len(done) + count * BATCH:,} tracks, {count / minutes:.0f} batches/min, {WORKERS} workers',
+                  flush=True)
 
 if completed:
     df = pd.read_csv(LOG_F).drop_duplicates(subset='trackID')

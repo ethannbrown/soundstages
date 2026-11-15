@@ -116,6 +116,13 @@ def test_in_label(rules, title, expected):
         ('Song (Mono)', 'song'),
         ('Song (feat. X)', 'song'),
         ('Song (with X)', 'song'),
+        ('Song - Original Mix', 'song'),
+        ('Song (Original Mix)', 'song'),
+        ('Song (Original)', 'song'),
+        ('Song - Original', 'song'),
+        ('Song (Original Soundtrack)', 'song (original soundtrack)'),
+        ('Song - Pista Original', 'song - pista original'),
+        ('Song - Extended Original Mix', 'song - extended original mix'),
         ('Song (Live)', 'song (live)'),
         ('Song (Acoustic)', 'song (acoustic)'),
         ('Song - Demo', 'song - demo'),
@@ -133,8 +140,6 @@ def test_recording_key(rules, title, expected):
 @pytest.mark.parametrize(
     'title, expected',
     [
-        # Same audio as the plain title, but kept apart
-        ('Song - Original Mix', 'song - original mix'),
         # No space after the dash, so the label isn't stripped
         ('Song -Remastered', 'song -remastered'),
     ],

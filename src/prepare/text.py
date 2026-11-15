@@ -30,7 +30,9 @@ NOT_SONGS = in_label(r'\basot\s*\d+|\bmixed\b|mix\s+cut|continuous(?:\s+dj)?\s+m
 
 # Labels that don't change the recording at all
 NEUTRAL = (r'remaster\w*|\d{4}\s+(?:digital\s+)?remaster\w*|single\s+version|album\s+version|original\s+version'
-           r'|mono|stereo|explicit|bonus\s+track|feat\.?|ft\.?|featuring|with\s')
+           r'|mono|stereo|explicit|bonus\s+track|feat\.?|ft\.?|featuring|with\s'
+           # 'Original' or 'Original Mix' only as the whole label
+           r'|(?:(?<=[\(\[])|(?<=[-–—]\s))original(?:\s+mix)?(?=\s*(?:[\)\]]|$))')
 
 # Common track title labels; shared by a multitude of records
 GENERIC = re.compile(r'^(?:intro|outro|interlude|skit|untitled|prelude|reprise|theme|hidden track'

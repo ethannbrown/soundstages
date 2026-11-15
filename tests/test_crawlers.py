@@ -194,13 +194,11 @@ def responses(crawler, case, item):
         ('albums', '500 then ok', True, True),
         ('tracks', '500 then ok', True, True),
         ('features', '500 then ok', True, True),
-        # Likely wrong: retries ran out, but albums.py and tracks.py still write
-        ('albums', '500 exhausted', False, True),
-        ('tracks', '500 exhausted', False, True),
+        ('albums', '500 exhausted', False, False),
+        ('tracks', '500 exhausted', False, False),
         ('features', '500 exhausted', False, False),
-        # Likely wrong: how tracks.py lost 41 albums
-        ('albums', 'connection error', False, True),
-        ('tracks', 'connection error', False, True),
+        ('albums', 'connection error', False, False),
+        ('tracks', 'connection error', False, False),
         ('features', 'connection error', False, False),
     ],
 )
@@ -313,6 +311,27 @@ def test_retry_budget_across_pages(api, tmp_path, monkeypatch, name, logged, wri
 
     assert crawler.logged(paths[crawler.log]) == ({'case'} if logged else set())
     assert paths[crawler.out].exists() == written
+
+
+# After an incomplete run, the next run asks only for what is missing,
+# then writes the parquet
+@pytest.mark.parametrize('name', CRAWLERS)
+def test_rerun_after_connection_error(api, tmp_path, monkeypatch, name):
+    crawler = CRAWLERS[name]
+    paths = crawler.setup(tmp_path, ['ok', 'case'])
+    api.responses[crawler.url('ok')] = [Resp(200, crawler.body('ok'))]
+    api.responses[crawler.url('case')] = [requests.ConnectionError('reset')]
+
+    run(crawler, paths, tmp_path, monkeypatch)
+    assert not paths[crawler.out].exists()
+
+    api.calls.clear()
+    api.responses[crawler.url('case')] = [Resp(200, crawler.body('case'))]
+    run(crawler, paths, tmp_path, monkeypatch)
+
+    assert api.calls == [crawler.url('case')]
+    assert crawler.logged(paths[crawler.log]) == {'ok', 'case'}
+    assert paths[crawler.out].exists()
 
 
 # Row contents, so the refactor can't change what gets logged

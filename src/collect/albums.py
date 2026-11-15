@@ -79,6 +79,7 @@ with ThreadPoolExecutor(max_workers=4) as executor, open(LOG_A, 'a') as f:
             rows = fut.result()
         except Exception as e:
             print(f'{e} for {iden}.')
+            completed = False
             continue
 
         if rows == -1 or rows == -2:
@@ -86,7 +87,12 @@ with ThreadPoolExecutor(max_workers=4) as executor, open(LOG_A, 'a') as f:
             completed = False
             continue
 
-        if rows in (-3, -4) or rows is None:
+        if rows in (-3, -4):
+            completed = False
+            continue
+
+        # 404: nothing to log, asked for again on the next run
+        if rows is None:
             continue
 
         f.write('\n'.join(json.dumps(r) for r in rows) + '\n')
@@ -101,3 +107,5 @@ with ThreadPoolExecutor(max_workers=4) as executor, open(LOG_A, 'a') as f:
 if completed:
     df = pd.read_json(LOG_A, lines=True)
     df.to_parquet(ALBUMS)
+else:
+    print('Early stoppage, requires rerun.')

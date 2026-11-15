@@ -77,6 +77,7 @@ with ThreadPoolExecutor(max_workers=8) as executor:
             rows = fut.result()
         except Exception as e:
             print(f'{iden} failed: {e}')
+            completed = False
             continue
 
         if rows == -1:
@@ -91,7 +92,12 @@ with ThreadPoolExecutor(max_workers=8) as executor:
             completed = False
             continue
 
-        if rows in (-3, -4) or rows is None:
+        if rows in (-3, -4):
+            completed = False
+            continue
+
+        # 404: nothing to log, asked for again on the next run
+        if rows is None:
             continue
 
         with open(LOG_T, 'a') as f:
@@ -107,3 +113,5 @@ if completed:
     df['popularity'] = df['popularity'].astype('Int64')
     df['duration'] = df['duration'].astype('Int64')
     df.to_parquet(TRACKS)
+else:
+    print('Early stoppage, requires rerun.')

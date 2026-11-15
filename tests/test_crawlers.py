@@ -297,8 +297,7 @@ def test_pages(api, tmp_path, monkeypatch, name):
 @pytest.mark.parametrize(
     'name, logged, written',
     [
-        # Still the shared budget, until albums.py uses api.get
-        ('albums', False, False),
+        ('albums', True, True),
         ('tracks', True, True),
     ],
 )

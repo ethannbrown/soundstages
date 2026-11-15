@@ -1,9 +1,13 @@
-import random, requests, sys, time
+import random
+import sys
+import time
+
 import pandas as pd
+import requests
 from bs4 import BeautifulSoup
 
 sys.path.append('.') # Run from project root
-from config import NOMINEES, LISTENERS, LOG_L, MAX_RETRIES
+from config import LISTENERS, LOG_L, MAX_RETRIES, NOMINEES
 
 # Resumability
 done = set()

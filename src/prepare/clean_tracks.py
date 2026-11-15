@@ -1,10 +1,11 @@
 import sys
+
 import numpy as np
 import pandas as pd
 
 sys.path.append('.') # Run from project root
-from config import TRACKS, ALBUMS_CLEAN, TRACKS_CLEAN
-from text import NEAR_COPIES, NOT_SONGS, GENERIC, base, recording_key
+from config import ALBUMS_CLEAN, TRACKS, TRACKS_CLEAN
+from text import GENERIC, NEAR_COPIES, NOT_SONGS, base, recording_key
 
 # Cleaning pipeline
 df = pd.read_parquet(TRACKS)

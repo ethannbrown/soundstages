@@ -1,9 +1,10 @@
 import threading
 import time
 
-import api as recco
 import pytest
 import requests
+
+import api as recco
 from fake_api import Resp
 
 URL = 'https://api.reccobeats.com/v1/example'

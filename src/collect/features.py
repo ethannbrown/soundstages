@@ -1,12 +1,15 @@
-import sys, os, csv
-import time
+import csv
+import os
+import sys
 import threading
+import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
+
 import pandas as pd
 
 sys.path.append('.') # Run from project root
-from config import TRACKS_CLEAN, FEATURES, LOG_F
 from api import get
+from config import FEATURES, LOG_F, TRACKS_CLEAN
 
 WORKERS = int(sys.argv[1]) if len(sys.argv) > 1 else 8
 BATCH = 40

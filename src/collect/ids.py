@@ -5,7 +5,6 @@ import pandas as pd
 
 sys.path.append('.')  # Run from project root
 from api import get
-
 from config import ARTISTS, IDS, LOG_R
 
 # Resumability

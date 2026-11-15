@@ -1,12 +1,14 @@
+import json
 import sys
-import time, json
 import threading
+import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
+
 import pandas as pd
 
 sys.path.append('.') # Run from project root
-from config import ALBUMS_CLEAN, TRACKS, LOG_T
 from api import get
+from config import ALBUMS_CLEAN, LOG_T, TRACKS
 
 done = set()
 try:

@@ -6,9 +6,9 @@ from pathlib import Path
 import pandas as pd
 import pytest
 import requests
-from fake_api import Resp
 
 import config
+from fake_api import Resp
 
 # Pins how albums.py, tracks.py and features.py react to each kind of API response.
 # Each crawler runs for real, inside tmp_path, with requests.get replaced by a fake.

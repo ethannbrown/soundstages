@@ -1,8 +1,9 @@
 import sys
+
 import pandas as pd
 
 sys.path.append('.')  # Run from project root
-from config import TRACKS_CLEAN, FEATURES, ARTISTS, IDS, DATASET
+from config import ARTISTS, DATASET, FEATURES, IDS, TRACKS_CLEAN
 from text import FEAT
 
 tracks = pd.read_parquet(TRACKS_CLEAN)

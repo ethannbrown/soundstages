@@ -1,5 +1,7 @@
+import sys
+
 import pandas as pd
-import requests, sys
+import requests
 
 sys.path.append('.') # Run from project root
 from config import NOMINEES, RESOLVED

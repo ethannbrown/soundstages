@@ -1,12 +1,13 @@
-import sys
 import json
-from concurrent.futures import ThreadPoolExecutor, as_completed
+import sys
 import threading
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
 import pandas as pd
 
 sys.path.append('.') # Run from project root
-from config import IDS, ALBUMS, LOG_A
 from api import get
+from config import ALBUMS, IDS, LOG_A
 
 done = set()
 try:

@@ -1,7 +1,9 @@
-import sys, shutil
+import shutil
+import sys
+
 import pandas as pd
 
-from config import BASE, ARTISTS, ALBUMS_CLEAN, TRACKS_CLEAN, DATASET
+from config import ALBUMS_CLEAN, ARTISTS, BASE, DATASET, TRACKS_CLEAN
 
 # Saves the outputs of the rerunnable stages, then checks reruns against them.
 # Usage, from the project root:

@@ -2,7 +2,7 @@ import sys
 import pandas as pd
 
 sys.path.append('.')  # Run from project root
-from config import TRACKS_CLEAN, FEATURES, ARTISTS, DATASET
+from config import TRACKS_CLEAN, FEATURES, ARTISTS, IDS, DATASET
 from text import FEAT
 
 tracks = pd.read_parquet(TRACKS_CLEAN)
@@ -33,7 +33,8 @@ df = df.dropna(subset=['year'])
 print(f'Dropped {n - len(df):,} tracks with no year')
 
 # 4. Artist context: genre and monthly listeners
-artists = pd.read_parquet(ARTISTS).dropna(subset=['uuid']).set_index('uuid')
+artists = pd.read_parquet(ARTISTS).merge(pd.read_parquet(IDS), on='id')
+artists = artists.dropna(subset=['uuid']).set_index('uuid')
 uuid = df['uuid'].astype(str)
 df['genre'] = uuid.map(artists['genre']).astype('category')
 df['listeners'] = uuid.map(artists['listeners']).astype('Int64')

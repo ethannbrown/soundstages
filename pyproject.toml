@@ -46,4 +46,4 @@ dev = [
 
 [tool.pytest.ini_options]
 testpaths = ['tests']
-pythonpath = ['src/prepare']
+pythonpath = ['.', 'src/prepare']

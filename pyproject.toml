@@ -1,6 +1,6 @@
 [project]
 name = "soundstages"
-author = "ebro"
+authors = [{ name = "Ethan Brown" }]
 description = "Audio feature evaluation across the popularity distribution via regression."
 license = "MIT"
 version = "0.1.0"

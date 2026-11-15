@@ -14,5 +14,7 @@ venv/
 
 .tempCodeRunnerFile.py
 
-.ruff_cache/data/
+.ruff_cache/
+
 data/
+references/

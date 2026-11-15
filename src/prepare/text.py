@@ -54,7 +54,7 @@ def recording_key(title):
     if pd.isna(title):
         return ''
     s = re.sub(rf'\s*[\(\[][^\)\]]*(?:{NEUTRAL})[^\)\]]*[\)\]]', '', clean_text(title))
-    s = re.sub(rf'\s+[-–—]\s+[^-–—]*(?:{NEUTRAL}).*$', '', s)
+    s = re.sub(rf'\s+[-–—]\s*[^-–—]*(?:{NEUTRAL}).*$', '', s)
     return re.sub(r'\s+', ' ', s).strip()
 
 

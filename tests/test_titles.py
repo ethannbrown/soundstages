@@ -136,15 +136,17 @@ def test_recording_key(rules, title, expected):
     assert rules.recording_key(title) == expected
 
 
-# Likely wrong, pinned as is
+# A neutral label after a dash counts with or without a space after it, as in in_label
 @pytest.mark.parametrize(
     'title, expected',
     [
-        # No space after the dash, so the label isn't stripped
-        ('Song -Remastered', 'song -remastered'),
+        ('Song -Remastered', 'song'),
+        ('Song -feat. X', 'song'),
+        ('Song - Home Recording -Bonus Track', 'song - home recording'),
+        ('Song -Subtitle-', 'song -subtitle-'),
     ],
 )
-def test_recording_key_gaps(rules, title, expected):
+def test_recording_key_dash_no_space(rules, title, expected):
     assert rules.recording_key(title) == expected
 
 
@@ -164,7 +166,9 @@ def test_recording_key_curly_apostrophe(rules):
         ('  Song   Title  ', 'song title'),
         ('Rock & Roll', 'rock and roll'),
         ('Won’t Stop', "won't stop"),
+        # base needs a space on both sides of the dash: 'Title -Subtitle-' stays whole
         ('Song -Live', 'song -live'),
+        ('Demonz -n- My Sleep', 'demonz -n- my sleep'),
         (None, ''),
         (float('nan'), ''),
     ],

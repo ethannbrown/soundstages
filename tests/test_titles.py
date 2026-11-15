@@ -17,6 +17,10 @@ import pytest
         ('Song - Chopped & Screwed', True),
         ('Song (Chopped and Screwed)', True),
         ('Song (feat. Z-Ro of Screwed Up Click)', False),
+        ('Okay - Acapella', True),
+        ('Song (A Cappella)', True),
+        ('Song (Accapella)', True),
+        ('Song - Acappella', True),
         ('Mr. Clean', False),
         ('Instrumental Song', False),
         ('Song (Live)', False),
@@ -37,17 +41,6 @@ def test_near_copies(rules, title, expected):
 )
 def test_near_copies_clean_false_positives(rules, title):
     assert rules.NEAR_COPIES.search(title)
-
-
-# Likely wrong, pinned as is: other spellings of the same edits are missed
-@pytest.mark.parametrize(
-    'title',
-    [
-        'Okay - Acapella',
-    ],
-)
-def test_near_copies_missed(rules, title):
-    assert not rules.NEAR_COPIES.search(title)
 
 
 # A near-copy is only dropped when the artist has an original with the same base

@@ -33,6 +33,5 @@ LOG_F = RAW / 'logF.csv'
 
 # Ingestion constants
 MAX_RETRIES = 3
-MAX_WORKERS = 4
 GENRE_COUNT = 19
 LISTENER_FLOOR = 100

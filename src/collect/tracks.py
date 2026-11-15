@@ -1,11 +1,12 @@
-import sys, requests
-import time, random, json
+import sys
+import time, json
 import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import pandas as pd
 
 sys.path.append('.') # Run from project root
-from config import ALBUMS_CLEAN, TRACKS, LOG_T, MAX_RETRIES
+from config import ALBUMS_CLEAN, TRACKS, LOG_T
+from api import get
 
 done = set()
 try:
@@ -17,71 +18,45 @@ except FileNotFoundError:
 albums = pd.read_parquet(ALBUMS_CLEAN)
 cols = ['albumID', 'uuid', 'trackID', 'title', 'duration', 'popularity', 'isrc', 'artists']
 
-headers = {
-  'Accept': 'application/json'
-}
-
 # Returns list of all tracks on an album
 def get_tracks(iden: str, uuid: str) -> list | int:
     total, page = None, 0
 
-    attempts = 0
     tracks = []
     while total is None or page < total:
-        if stop.is_set():
-            return -4
-
         url = f'https://api.reccobeats.com/v1/album/{iden}/track?page={page}&size=50'
-        resp = requests.get(url, headers=headers)
+        data = get(url, stop)
 
-        if resp.status_code == 200:
-            data = resp.json()
-            total = data['totalPages']
-
-            if not data['content']:
-                row = {col: None for col in cols}
-                row['albumID'], row['uuid'] = iden, uuid
-                return [row]
-
-            for track in data['content']:
-                row = {
-                    'albumID': iden,
-                    'uuid': uuid,
-                    'trackID': track['id'],
-                    'title': track['trackTitle'],
-                    'duration': track['durationMs'],
-                    'popularity': track['popularity'],
-                    'isrc': track['isrc'],
-                    'artists': [{'name': a['name'], 'id': a['id']} for a in track['artists']]
-                }
-                tracks.append(row)
-
-            page += 1
-            time.sleep(random.uniform(0.75, 1.25))
-
-        elif resp.status_code == 404:
+        # 404: skipped, and asked for again on the next run
+        if data is None:
             print(f'HTTP 404 error for {iden}.')
             return None
 
-        elif resp.status_code == 429:
-            attempts += 1
-            if attempts > MAX_RETRIES:
-                return -1
+        # A sentinel from api.get, -1 to -4
+        if isinstance(data, int):
+            return data
 
-            sleep = int(resp.headers.get('Retry-After', 30))
-            time.sleep(sleep)
-            continue
+        total = data['totalPages']
 
-        elif resp.status_code == 403:
-            return -2
+        if not data['content']:
+            row = {col: None for col in cols}
+            row['albumID'], row['uuid'] = iden, uuid
+            return [row]
 
-        else:
-            attempts += 1
-            if attempts > MAX_RETRIES:
-                return -3
+        for track in data['content']:
+            row = {
+                'albumID': iden,
+                'uuid': uuid,
+                'trackID': track['id'],
+                'title': track['trackTitle'],
+                'duration': track['durationMs'],
+                'popularity': track['popularity'],
+                'isrc': track['isrc'],
+                'artists': [{'name': a['name'], 'id': a['id']} for a in track['artists']]
+            }
+            tracks.append(row)
 
-            time.sleep(45)
-            continue
+        page += 1
 
     return tracks
 

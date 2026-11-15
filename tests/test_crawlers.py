@@ -290,10 +290,19 @@ def test_pages(api, tmp_path, monkeypatch, name):
     assert paths[crawler.out].exists()
 
 
-# The retry budget is shared across pages today: 3 retries on page 0 and 1 on page 1
-# add up to 4 and the run stops. Changes when api.py lands (one budget per request).
-@pytest.mark.parametrize('name', ['albums', 'tracks'])
-def test_retry_budget_across_pages(api, tmp_path, monkeypatch, name):
+# Each page gets its own retry budget (api.get counts per request): 3 retries on
+# page 0 and 1 on page 1 is fine. Before api.py the budget was shared across pages,
+# so they added up to 4 and the run stopped.
+# Columns: crawler, is the album/artist logged, is the output parquet written
+@pytest.mark.parametrize(
+    'name, logged, written',
+    [
+        # Still the shared budget, until albums.py uses api.get
+        ('albums', False, False),
+        ('tracks', True, True),
+    ],
+)
+def test_retry_budget_across_pages(api, tmp_path, monkeypatch, name, logged, written):
     crawler = CRAWLERS[name]
     paths = crawler.setup(tmp_path, ['case'])
     page0 = Resp(200, crawler.body('case', 0, pages=2))
@@ -303,8 +312,8 @@ def test_retry_budget_across_pages(api, tmp_path, monkeypatch, name):
 
     run(crawler, paths, tmp_path, monkeypatch)
 
-    assert crawler.logged(paths[crawler.log]) == set()
-    assert not paths[crawler.out].exists()
+    assert crawler.logged(paths[crawler.log]) == ({'case'} if logged else set())
+    assert paths[crawler.out].exists() == written
 
 
 # Row contents, so the refactor can't change what gets logged

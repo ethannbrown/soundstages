@@ -429,3 +429,29 @@ def test_feature_rows(api, tmp_path, monkeypatch):
     df = pd.read_parquet(paths['FEATURES'])
     assert str(df['key'].dtype) == 'Int64'
     assert str(df['mode'].dtype) == 'Int64'
+
+
+# ids.py writes the Spotify to ReccoBeats mapping to its own file and leaves
+# artists.parquet alone. An artist the API doesn't return gets no uuid.
+def test_id_rows(api, tmp_path, monkeypatch):
+    artists = pd.DataFrame({'id': ['s1', 's2'], 'name': ['A', 'B']})
+    artists.to_parquet(tmp_path / 'artists.parquet')
+    paths = {
+        'ARTISTS': tmp_path / 'artists.parquet',
+        'IDS': tmp_path / 'ids.parquet',
+        'LOG_R': tmp_path / 'logR.csv',
+    }
+    found = {'id': 'r1', 'href': 'https://open.spotify.com/artist/s1'}
+    api.responses[f'{BASE}/artist?ids=s1,s2'] = [Resp(200, {'content': [found]})]
+
+    class Ids:
+        script = 'ids.py'
+
+    run(Ids(), paths, tmp_path, monkeypatch)
+
+    ids = pd.read_parquet(paths['IDS'])
+    assert list(ids.columns) == ['id', 'uuid']
+    assert ids['id'].tolist() == ['s1', 's2']
+    assert ids['uuid'].iloc[0] == 'r1'
+    assert pd.isna(ids['uuid'].iloc[1])
+    pd.testing.assert_frame_equal(pd.read_parquet(paths['ARTISTS']), artists)

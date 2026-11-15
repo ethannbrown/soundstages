@@ -14,6 +14,7 @@ NOMINEES = INPUTS / 'nominees.parquet'
 LISTENERS = INPUTS / 'listeners.parquet'
 RESOLVED = INPUTS / 'resolved.parquet'
 ARTISTS = INPUTS / 'artists.parquet'
+IDS = INPUTS / 'ids.parquet'
 
 # Records
 ALBUMS = INPUTS / 'albums.parquet'

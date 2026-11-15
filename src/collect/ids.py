@@ -3,7 +3,7 @@ import time, random
 import pandas as pd
 
 sys.path.append('.')
-from config import ARTISTS, MAX_RETRIES, LOG_R
+from config import ARTISTS, IDS, MAX_RETRIES, LOG_R
 
 headers = {
   'Accept': 'application/json'
@@ -81,6 +81,7 @@ for batch in batches:
 if completed is True:
     df = pd.read_csv(LOG_R, header=0)
     mapping = dict(zip(df['spotify'], df['recco']))
-    artists['uuid'] = artists['id'].map(mapping)
-    artists = artists[['id', 'uuid', 'name', 'genre', 'listeners']]
-    artists.to_parquet(ARTISTS)
+
+    # Own file, so rerunning merge.py never drops the uuids
+    ids = pd.DataFrame({'id': artists['id'], 'uuid': artists['id'].map(mapping)})
+    ids.to_parquet(IDS)

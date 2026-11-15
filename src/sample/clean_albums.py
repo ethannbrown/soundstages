@@ -40,7 +40,7 @@ PATTERNS = [
 
 CREDITS = r"feat\.?\s", r"ft\.?\s", r"featuring\s", r"with\s"
 
-ALT = "|".join(PATTERNS)
+ALT = "|".join(PATTERNS + list(CREDITS))
 BRACKET = re.compile(rf"[\(\[][^\)\]]*(?:{ALT})[^\)\]]*[\)\]]", re.I)
 DASH = re.compile(rf"\s+[-\u2013\u2014]\s*[^-\u2013\u2014]*(?:{ALT}).*$", re.I)
 

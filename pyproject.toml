@@ -40,5 +40,9 @@ quote-style = "single"
 
 [dependency-groups]
 dev = [
+    "pytest>=9.2.0",
     "ruff>=0.17.5",
 ]
+
+[tool.pytest.ini_options]
+testpaths = ['tests']

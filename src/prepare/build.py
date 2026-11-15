@@ -3,11 +3,19 @@ import pandas as pd
 
 sys.path.append('.')  # Run from project root
 from config import TRACKS_CLEAN, FEATURES, ARTISTS, DATASET
+from text import FEAT
 
 tracks = pd.read_parquet(TRACKS_CLEAN)
 feats = pd.read_parquet(FEATURES)
 feats['trackID'] = feats['trackID'].astype('string[pyarrow]')
 print(f'Loaded {len(tracks):,} tracks')
+
+# Track flags for sensitivity checks, not features. Set before the merge so they
+# sit next to the track columns, ahead of the audio features.
+has_feat = tracks['title'].fillna('').str.contains(FEAT)
+tracks['is_multi'] = (tracks['n_artists'] > 1) | has_feat
+tracks['is_short'] = tracks['duration'] < 60_000
+tracks['is_long'] = tracks['duration'] > 900_000
 
 # 1. Tracks with no audio features
 n = len(tracks)

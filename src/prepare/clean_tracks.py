@@ -4,7 +4,7 @@ import pandas as pd
 
 sys.path.append('.') # Run from project root
 from config import TRACKS, ALBUMS_CLEAN, TRACKS_CLEAN
-from text import NEAR_COPIES, NOT_SONGS, GENERIC, FEAT, base, recording_key
+from text import NEAR_COPIES, NOT_SONGS, GENERIC, base, recording_key
 
 # Cleaning pipeline
 df = pd.read_parquet(TRACKS)
@@ -85,11 +85,8 @@ df = (df.sort_values(['popularity', 'trackID'], ascending=[False, True])
         .drop(columns=['key', 'recording']))
 print(f'Collapsed {n - len(df):,} reissues')
  
-# Step 9: Track labels
+# Step 9: Artist count, before the artists column is dropped
 df['n_artists'] = [len({a['id'] for a in lst} | {u}) for lst, u in zip(df['artists'], df['uuid'].astype(str))]
-df['is_multi'] = (df['n_artists'] > 1) | df['title'].fillna('').str.contains(FEAT)
-df['is_short'] = df['duration'] < 60_000
-df['is_long'] = df['duration'] > 900_000
 df = df.drop(columns='artists')
  
 for col in ['popularity', 'duration', 'year', 'n_artists']:

@@ -30,7 +30,7 @@ def get_listeners(iden: str) -> int | None:
             break
 
         elif resp.status_code == 404:
-            print(f'HTTP 404 error for {iden}.')
+            print(f'Skipped artist {iden}, not found (404)')
             return None
         
         elif resp.status_code == 429:
@@ -48,7 +48,7 @@ def get_listeners(iden: str) -> int | None:
         else:
             attempts += 1
             if attempts > MAX_RETRIES:
-                print(f'HTTP {resp.status_code} error for {iden}.')
+                print(f'Gave up on artist {iden} after HTTP {resp.status_code}')
                 return -3
             
             time.sleep(30)
@@ -75,12 +75,12 @@ for iden in noms['id']:
     listeners = get_listeners(iden)
 
     if listeners == -1:
-        print('HTTP 429 error, max retries hit. Breaking.')
+        print(f'Still rate limited (429) on artist {iden}, stopping')
         completed = False
         break
 
     elif listeners == -2:
-        print('HTTP 403 error, forbidden. Breaking.')
+        print('Forbidden (403), stopping')
         completed = False
         break
 

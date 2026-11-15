@@ -38,11 +38,14 @@ for count, batch in enumerate(batches, start=1):
 
     # 404: skipped, and asked for again on the next run
     if data is None:
-        print(f'HTTP 404 error on batch {count} of {len(batches)}.')
+        print(f'Skipped batch {count} of {len(batches)}, not found (404)')
         continue
 
+    if data == -1:
+        print(f'Still rate limited (429) on batch {count}, stopping')
+
     if data == -2:
-        print('HTTP 403 error, forbidden.')
+        print('Forbidden (403), stopping')
 
     # A sentinel from api.get: -1 rate limited, -2 forbidden, -3 retries exhausted
     if isinstance(data, int):

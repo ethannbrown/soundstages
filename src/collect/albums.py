@@ -30,13 +30,13 @@ def get_records(iden: str) -> list | int | None:
 
         # 404: skipped, and asked for again on the next run
         if data is None:
-            print(f'HTTP 404 error for {iden}.')
+            print(f'Skipped artist {iden}, not found (404)')
             return None
 
         # A sentinel from api.get, -1 to -4
         if isinstance(data, int):
             if data == -2:
-                print('HTTP 403 error, forbidden.')
+                print('Forbidden (403), stopping')
             return data
 
         total = data['totalPages']
@@ -79,9 +79,12 @@ with ThreadPoolExecutor(max_workers=4) as executor, open(LOG_A, 'a') as f:
         try:
             rows = fut.result()
         except Exception as e:
-            print(f'{e} for {iden}.')
+            print(f'Artist {iden} failed: {e}')
             completed = False
             continue
+
+        if rows == -1:
+            print(f'Still rate limited (429) on artist {iden}, stopping')
 
         if rows == -1 or rows == -2:
             stop.set()
@@ -100,10 +103,7 @@ with ThreadPoolExecutor(max_workers=4) as executor, open(LOG_A, 'a') as f:
 
         count += 1
         if count % 100 == 0:
-            print(f'{count} of {len(ids)} artists completed.')
-
-        if count == len(ids):
-            print('Complete.')
+            print(f'Fetched {count:,} of {len(ids):,} artists')
 
 if completed:
     df = pd.read_json(LOG_A, lines=True)

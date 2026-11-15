@@ -65,13 +65,13 @@ with ThreadPoolExecutor(max_workers=WORKERS) as executor:
             continue
 
         if rows == -1:
-            print(f'HTTP 429 error on batch {i}. Breaking.')
+            print(f'Still rate limited (429) on batch {i}, stopping')
             stop.set()
             completed = False
             continue
 
         if rows == -2:
-            print('HTTP 403 error, forbidden. Breaking.')
+            print('Forbidden (403), stopping')
             stop.set()
             completed = False
             continue
@@ -86,8 +86,8 @@ with ThreadPoolExecutor(max_workers=WORKERS) as executor:
         count += 1
         if count % 1000 == 0:
             minutes = (time.time() - start) / 60
-            print(f'{len(done) + count * BATCH:,} tracks, {count / minutes:.0f} batches/min, {WORKERS} workers',
-                  flush=True)
+            print(f'Fetched {len(done) + count * BATCH:,} of {len(done) + len(idens):,} tracks, '
+                  f'{count / minutes:.0f} batches a minute', flush=True)
 
 if completed:
     df = pd.read_csv(LOG_F).drop_duplicates(subset='trackID')
@@ -96,6 +96,6 @@ if completed:
     df.to_parquet(FEATURES)
 
     missing = df['danceability'].isna().sum()
-    print(f'{len(df):,} tracks, {len(df) - missing:,} with features, {missing:,} missing')
+    print(f'Wrote {len(df):,} tracks, {len(df) - missing:,} with features and {missing:,} without')
 else:
     print('Early stoppage, requires rerun.')

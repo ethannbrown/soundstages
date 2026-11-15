@@ -1,7 +1,6 @@
 import json
 import sys
 import threading
-import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import pandas as pd
@@ -31,7 +30,7 @@ def get_tracks(iden: str, uuid: str) -> list | int | None:
 
         # 404: skipped, and asked for again on the next run
         if data is None:
-            print(f'HTTP 404 error for {iden}.')
+            print(f'Skipped album {iden}, not found (404)')
             return None
 
         # A sentinel from api.get, -1 to -4
@@ -66,7 +65,6 @@ stop = threading.Event()
 todo = [(a, u) for a, u in zip(albums['albumID'], albums['uuid'], strict=True) if a not in done]
 
 count = 0
-start = time.time()
 completed = True
 
 with ThreadPoolExecutor(max_workers=8) as executor:
@@ -78,18 +76,18 @@ with ThreadPoolExecutor(max_workers=8) as executor:
         try:
             rows = fut.result()
         except Exception as e:
-            print(f'{iden} failed: {e}')
+            print(f'Album {iden} failed: {e}')
             completed = False
             continue
 
         if rows == -1:
-            print(f'HTTP 429 error on {iden}. Breaking.')
+            print(f'Still rate limited (429) on album {iden}, stopping')
             stop.set()
             completed = False
             continue
 
         if rows == -2:
-            print('HTTP 403 error, forbidden. Breaking.')
+            print('Forbidden (403), stopping')
             stop.set()
             completed = False
             continue
@@ -107,8 +105,7 @@ with ThreadPoolExecutor(max_workers=8) as executor:
 
         count += 1
         if count % 1000 == 0:
-            minutes = (time.time() - start) / 60
-            print(f'{len(done) + count} albums')
+            print(f'Fetched {len(done) + count:,} of {len(done) + len(todo):,} albums')
 
 if completed:
     df = pd.read_json(LOG_T, lines=True)

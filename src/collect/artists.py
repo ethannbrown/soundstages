@@ -33,16 +33,17 @@ for sub, string in sub_strings.items():
         artists[artist['id']]['genres'].add(genre)
         sub_count += 1
 
-    print(f'{sub_count} artists returned for {sub}.')
+    print(f'Found {sub_count:,} artists for {sub}')
     count += sub_count
 
-print(f'{count} total artists nominated.')
+print(f'Found {count:,} artist listings, {len(artists):,} unique')
 
 artists = {
     iden: data
     for iden, data in artists.items()
     if is_artist(data['name'])
 }
+print(f'Kept {len(artists):,} after the name rule')
 
 rows = [
     {'id': iden, 'name': data['name'], 'genres': sorted(data['genres'])}

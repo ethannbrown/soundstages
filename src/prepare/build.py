@@ -45,8 +45,9 @@ df['is_spoken'] = df['speechiness'] >= 0.66
 
 df = df.reset_index(drop=True)
 
-print(f'\nDone: {len(df):,} tracks from {df["uuid"].nunique():,} artists')
-print(f'{df["is_spoken"].sum():,} spoken-word tracks flagged')
-print(f'{df["genre"].isna().sum():,} tracks missing a genre')
+print(f'Kept {len(df):,} tracks from {df["uuid"].nunique():,} artists')
+print(f'Flagged {df["is_multi"].sum():,} tracks as multi-artist, {df["is_short"].sum():,} as short, '
+      f'{df["is_long"].sum():,} as long and {df["is_spoken"].sum():,} as spoken word')
+print(f'{df["genre"].isna().sum():,} tracks have no genre')
 
 df.to_parquet(DATASET)

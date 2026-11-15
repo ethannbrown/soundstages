@@ -59,7 +59,7 @@ df = df.sort_values(['popularity', 'trackID'], ascending=[False, True])
 has_isrc = df['isrc'].notna()
 n = len(df)
 df = pd.concat([df[has_isrc].drop_duplicates(subset='isrc'), df[~has_isrc]])
-print(f'Collapsed {n - len(df):,} ISRC duplicates ({(~has_isrc).sum():,} had no ISRC)')
+print(f'Collapsed {n - len(df):,} ISRC duplicates')
  
 # Step 8: Same recording under different ISRC, e.g., remaster
 df['key'] = df['title'].map(recording_key)
@@ -97,8 +97,9 @@ for col in ['popularity', 'duration', 'year', 'n_artists']:
 df = df.sort_values(['uuid', 'albumID', 'trackID']).reset_index(drop=True)
  
 pop = df['popularity']
-print(f'\nDone: {len(df):,} tracks from {df["uuid"].nunique():,} artists')
-print(f'Popularity: median {pop.median():.0f}, {(pop == 0).mean():.1%} at zero, {(pop <= 5).mean():.1%} at 5 or below')
-print(f'{df["year"].isna().sum():,} tracks missing a year')
+print(f'Kept {len(df):,} tracks from {df["uuid"].nunique():,} artists')
+print(f'Median popularity is {pop.median():.0f}; {(pop == 0).mean():.1%} of tracks are at 0 and '
+      f'{(pop <= 5).mean():.1%} at 5 or below')
+print(f'{df["year"].isna().sum():,} tracks have no year')
  
 df.to_parquet(TRACKS_CLEAN)

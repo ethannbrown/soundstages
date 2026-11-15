@@ -18,6 +18,7 @@ except FileNotFoundError:
     with open(LOG_L, 'w') as f:
         f.write('id,listeners\n')
 
+
 # Returns present monthly listener counts; sentinel values for errors
 def get_listeners(iden: str) -> int | None:
     url = f'https://open.spotify.com/artist/{iden}'
@@ -64,6 +65,7 @@ def get_listeners(iden: str) -> int | None:
     listeners = int(''.join(filter(str.isdigit, listeners)))
 
     return listeners
+
 
 noms = pd.read_parquet(NOMINEES)
 

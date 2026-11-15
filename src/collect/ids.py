@@ -19,8 +19,7 @@ except FileNotFoundError:
 artists = pd.read_parquet(ARTISTS)
 idens = [iden for iden in artists['id'] if iden not in done]
 
-batches = [','.join(idens[i:i+40])
-           for i in range(0, len(idens), 40)]
+batches = [','.join(idens[i : i + 40]) for i in range(0, len(idens), 40)]
 
 # One request at a time, so nothing sets stop; api.get takes it anyway
 stop = threading.Event()
@@ -55,7 +54,7 @@ for count, batch in enumerate(batches, start=1):
     with open(LOG_R, 'a') as f:
         for artist in data['content']:
             spotify = artist['href'].split('/')[-1]
-            f.write(f"{spotify},{artist['id']}\n")
+            f.write(f'{spotify},{artist["id"]}\n')
 
 if completed is True:
     df = pd.read_csv(LOG_R, header=0)

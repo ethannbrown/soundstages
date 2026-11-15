@@ -75,9 +75,9 @@ class Tracks:
     log = 'LOG_T'
 
     def setup(self, tmp_path, items):
-        pd.DataFrame(
-            {'albumID': items, 'uuid': [f'{i}-artist' for i in items]}
-        ).to_parquet(tmp_path / 'albums_clean.parquet')
+        pd.DataFrame({'albumID': items, 'uuid': [f'{i}-artist' for i in items]}).to_parquet(
+            tmp_path / 'albums_clean.parquet'
+        )
         return {
             'ALBUMS_CLEAN': tmp_path / 'albums_clean.parquet',
             'TRACKS': tmp_path / 'tracks.parquet',
@@ -147,12 +147,7 @@ class Features:
         return f'{BASE}/audio-features?ids={",".join(self.tracks(item))}'
 
     def body(self, item, page=0, pages=1):
-        return {
-            'content': [
-                {'id': t, **{f: 0.5 for f in FEATS}, 'key': 2, 'mode': 1}
-                for t in self.tracks(item)
-            ]
-        }
+        return {'content': [{'id': t, **{f: 0.5 for f in FEATS}, 'key': 2, 'mode': 1} for t in self.tracks(item)]}
 
     def rows(self, path):
         return pd.read_csv(path)
@@ -185,10 +180,7 @@ class Ids:
 
     def body(self, item, page=0, pages=1):
         return {
-            'content': [
-                {'id': f'r-{a}', 'href': f'https://open.spotify.com/artist/{a}'}
-                for a in self.artists(item)
-            ]
+            'content': [{'id': f'r-{a}', 'href': f'https://open.spotify.com/artist/{a}'} for a in self.artists(item)]
         }
 
     def rows(self, path):
@@ -322,12 +314,8 @@ def test_retries(api, tmp_path, monkeypatch, name):
 def test_pages(api, tmp_path, monkeypatch, name):
     crawler = CRAWLERS[name]
     paths = crawler.setup(tmp_path, ['case'])
-    api.responses[crawler.url('case', 0)] = [
-        Resp(200, crawler.body('case', 0, pages=2))
-    ]
-    api.responses[crawler.url('case', 1)] = [
-        Resp(200, crawler.body('case', 1, pages=2))
-    ]
+    api.responses[crawler.url('case', 0)] = [Resp(200, crawler.body('case', 0, pages=2))]
+    api.responses[crawler.url('case', 1)] = [Resp(200, crawler.body('case', 1, pages=2))]
 
     run(crawler, paths, tmp_path, monkeypatch)
 
@@ -472,18 +460,13 @@ def test_feature_rows(api, tmp_path, monkeypatch):
     # Two tracks in one batch is not possible with these helpers, so build it here
     pd.DataFrame({'trackID': ['t1', 't2']}).to_parquet(paths['TRACKS_CLEAN'])
     found = {'id': 't1', **{f: 0.5 for f in FEATS}, 'key': 2, 'mode': 1}
-    api.responses[f'{BASE}/audio-features?ids=t1,t2'] = [
-        Resp(200, {'content': [found]})
-    ]
+    api.responses[f'{BASE}/audio-features?ids=t1,t2'] = [Resp(200, {'content': [found]})]
 
     run(crawler, paths, tmp_path, monkeypatch)
 
     log = crawler.rows(paths['LOG_F'])
     assert list(log.columns) == ['trackID'] + FEATS
-    assert (
-        log.set_index('trackID').loc['t1'].tolist()
-        == [0.5] * 4 + [2] + [0.5] * 2 + [1] + [0.5] * 3
-    )
+    assert log.set_index('trackID').loc['t1'].tolist() == [0.5] * 4 + [2] + [0.5] * 2 + [1] + [0.5] * 3
     assert log.set_index('trackID').loc['t2'].isna().all()
     df = pd.read_parquet(paths['FEATURES'])
     assert str(df['key'].dtype) == 'Int64'

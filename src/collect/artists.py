@@ -10,8 +10,10 @@ from genres import SUBS
 from rule import is_artist
 
 headers = {
-    'User-Agent': ('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 '
-                   '(KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36')
+    'User-Agent': (
+        'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 '
+        '(KHTML, like Gecko) Chrome/149.0.0.0 Safari/537.36'
+    )
 }
 
 artists = {}
@@ -38,16 +40,9 @@ for sub, string in sub_strings.items():
 
 print(f'Found {count:,} artist listings, {len(artists):,} unique')
 
-artists = {
-    iden: data
-    for iden, data in artists.items()
-    if is_artist(data['name'])
-}
+artists = {iden: data for iden, data in artists.items() if is_artist(data['name'])}
 print(f'Kept {len(artists):,} after the name rule')
 
-rows = [
-    {'id': iden, 'name': data['name'], 'genres': sorted(data['genres'])}
-     for iden, data in artists.items()
-]
+rows = [{'id': iden, 'name': data['name'], 'genres': sorted(data['genres'])} for iden, data in artists.items()]
 df = pd.DataFrame(rows)
 df.to_parquet(NOMINEES)

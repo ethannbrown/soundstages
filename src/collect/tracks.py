@@ -19,6 +19,7 @@ except FileNotFoundError:
 albums = pd.read_parquet(ALBUMS_CLEAN)
 cols = ['albumID', 'uuid', 'trackID', 'title', 'duration', 'popularity', 'isrc', 'artists']
 
+
 # Returns list of all tracks on an album
 def get_tracks(iden: str, uuid: str) -> list | int | None:
     total, page = None, 0
@@ -53,13 +54,14 @@ def get_tracks(iden: str, uuid: str) -> list | int | None:
                 'duration': track['durationMs'],
                 'popularity': track['popularity'],
                 'isrc': track['isrc'],
-                'artists': [{'name': a['name'], 'id': a['id']} for a in track['artists']]
+                'artists': [{'name': a['name'], 'id': a['id']} for a in track['artists']],
             }
             tracks.append(row)
 
         page += 1
 
     return tracks
+
 
 stop = threading.Event()
 todo = [(a, u) for a, u in zip(albums['albumID'], albums['uuid'], strict=True) if a not in done]

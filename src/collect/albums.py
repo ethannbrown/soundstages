@@ -19,6 +19,7 @@ except FileNotFoundError:
 ids = pd.read_parquet(IDS).dropna()
 cols = ['uuid', 'albumID', 'title', 'type', 'released', 'popularity', 'artists', 'tracks']
 
+
 # Returns list of all album records for an artist
 def get_records(iden: str) -> list | int | None:
     total, page = None, 0
@@ -57,13 +58,14 @@ def get_records(iden: str) -> list | int | None:
                 'released': record['releaseDate'],
                 'popularity': record['popularity'],
                 'artists': [{'name': a['name'], 'uuid': a['id']} for a in record['artists']],
-                'tracks': record['totalTracks']
+                'tracks': record['totalTracks'],
             }
             records.append(row)
 
         page += 1
 
     return records
+
 
 stop = threading.Event()
 todo = [i for i in ids['uuid'] if i not in done]

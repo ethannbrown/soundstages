@@ -13,8 +13,19 @@ from config import FEATURES, LOG_F, TRACKS_CLEAN
 
 WORKERS = int(sys.argv[1]) if len(sys.argv) > 1 else 8
 BATCH = 40
-FEATS = ['acousticness', 'danceability', 'energy', 'instrumentalness', 'key',
-         'liveness', 'loudness', 'mode', 'speechiness', 'tempo', 'valence']
+FEATS = [
+    'acousticness',
+    'danceability',
+    'energy',
+    'instrumentalness',
+    'key',
+    'liveness',
+    'loudness',
+    'mode',
+    'speechiness',
+    'tempo',
+    'valence',
+]
 cols = ['trackID'] + FEATS
 
 # Log is CSV, not JSON: on resume only the trackID column is read, which takes seconds
@@ -26,11 +37,12 @@ else:
         csv.writer(f).writerow(cols)
 
 idens = [t for t in pd.read_parquet(TRACKS_CLEAN, columns=['trackID'])['trackID'] if t not in done]
-batches = [idens[i:i + BATCH] for i in range(0, len(idens), BATCH)]
+batches = [idens[i : i + BATCH] for i in range(0, len(idens), BATCH)]
+
 
 # Returns one row per requested track; tracks with no features get empty values
 def get_features(batch: list) -> list | int:
-    url = f"https://api.reccobeats.com/v1/audio-features?ids={','.join(batch)}"
+    url = f'https://api.reccobeats.com/v1/audio-features?ids={",".join(batch)}'
     data = get(url, stop)
 
     # 404: none of these tracks have features
@@ -42,8 +54,8 @@ def get_features(batch: list) -> list | int:
         return data
 
     found = {t['id']: t for t in data['content']}
-    return [[t] + ([found[t].get(f) for f in FEATS] if t in found else [None] * len(FEATS))
-            for t in batch]
+    return [[t] + ([found[t].get(f) for f in FEATS] if t in found else [None] * len(FEATS)) for t in batch]
+
 
 stop = threading.Event()
 
@@ -86,8 +98,11 @@ with ThreadPoolExecutor(max_workers=WORKERS) as executor:
         count += 1
         if count % 1000 == 0:
             minutes = (time.time() - start) / 60
-            print(f'Fetched {len(done) + count * BATCH:,} of {len(done) + len(idens):,} tracks, '
-                  f'{count / minutes:.0f} batches a minute', flush=True)
+            print(
+                f'Fetched {len(done) + count * BATCH:,} of {len(done) + len(idens):,} tracks, '
+                f'{count / minutes:.0f} batches a minute',
+                flush=True,
+            )
 
 if completed:
     df = pd.read_csv(LOG_F).drop_duplicates(subset='trackID')

@@ -80,14 +80,17 @@ df['recording'] = rec
 df['year'] = df.groupby('recording')['year'].transform('min')
 
 n = len(df)
-df = (df.sort_values(['popularity', 'trackID'], ascending=[False, True])
-        .drop_duplicates(subset='recording')
-        .drop(columns=['key', 'recording']))
+df = (
+    df.sort_values(['popularity', 'trackID'], ascending=[False, True])
+    .drop_duplicates(subset='recording')
+    .drop(columns=['key', 'recording'])
+)
 print(f'Collapsed {n - len(df):,} reissues')
 
 # Step 9: Artist count, before the artists column is dropped
-df['n_artists'] = [len({a['id'] for a in lst} | {u})
-                   for lst, u in zip(df['artists'], df['uuid'].astype(str), strict=True)]
+df['n_artists'] = [
+    len({a['id'] for a in lst} | {u}) for lst, u in zip(df['artists'], df['uuid'].astype(str), strict=True)
+]
 df = df.drop(columns='artists')
 
 for col in ['popularity', 'duration', 'year', 'n_artists']:
@@ -97,8 +100,10 @@ df = df.sort_values(['uuid', 'albumID', 'trackID']).reset_index(drop=True)
 
 pop = df['popularity']
 print(f'Kept {len(df):,} tracks from {df["uuid"].nunique():,} artists')
-print(f'Median popularity is {pop.median():.0f}; {(pop == 0).mean():.1%} of tracks are at 0 and '
-      f'{(pop <= 5).mean():.1%} at 5 or below')
+print(
+    f'Median popularity is {pop.median():.0f}; {(pop == 0).mean():.1%} of tracks are at 0 and '
+    f'{(pop <= 5).mean():.1%} at 5 or below'
+)
 print(f'{df["year"].isna().sum():,} tracks have no year')
 
 df.to_parquet(TRACKS_CLEAN)

@@ -26,8 +26,9 @@ print(f'Dropped {n - len(df):,} duplicate albumIDs')
 # Editions of an album (e.g., deluxe, remaster) with the same track count; keeps most popular
 n = len(df)
 df['norm'] = df['title'].map(normalize_title)
-df = (df.sort_values(['popularity', 'albumID'], ascending=[False, True])
-        .drop_duplicates(subset=['uuid', 'norm', 'tracks']))
+df = df.sort_values(['popularity', 'albumID'], ascending=[False, True]).drop_duplicates(
+    subset=['uuid', 'norm', 'tracks']
+)
 print(f'Collapsed {n - len(df):,} editions')
 
 df = df.sort_index()

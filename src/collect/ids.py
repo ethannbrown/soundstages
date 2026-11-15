@@ -1,13 +1,12 @@
-import sys, requests
-import time, random
+import sys
+import threading
+
 import pandas as pd
 
-sys.path.append('.')
-from config import ARTISTS, IDS, MAX_RETRIES, LOG_R
+sys.path.append('.')  # Run from project root
+from api import get
 
-headers = {
-  'Accept': 'application/json'
-}
+from config import ARTISTS, IDS, LOG_R
 
 # Resumability
 done = set()
@@ -24,64 +23,44 @@ idens = [iden for iden in artists['id'] if iden not in done]
 batches = [','.join(idens[i:i+40])
            for i in range(0, len(idens), 40)]
 
-count = 0
+# One request at a time, so nothing sets stop; api.get takes it anyway
+stop = threading.Event()
+
 completed = True
-for batch in batches:
-    if completed is False:
-        sys.exit()
+for count, batch in enumerate(batches, start=1):
+    url = f'https://api.reccobeats.com/v1/artist?ids={batch}'
 
-    url = f"https://api.reccobeats.com/v1/artist?ids={batch}"
+    try:
+        data = get(url, stop)
+    except Exception as e:
+        print(f'Batch {count} failed: {e}')
+        completed = False
+        break
 
-    attempts = 0
-    while True:
-        resp = requests.get(url, headers=headers)
+    # 404: skipped, and asked for again on the next run
+    if data is None:
+        print(f'HTTP 404 error on batch {count} of {len(batches)}.')
+        continue
 
-        if resp.status_code == 200:
-            count += 1
+    if data == -2:
+        print('HTTP 403 error, forbidden.')
 
-            for artist in resp.json()['content']:
-                spotify = artist['href'].split('/')[-1]
-                recco = artist['id']
+    # A sentinel from api.get: -1 rate limited, -2 forbidden, -3 retries exhausted
+    if isinstance(data, int):
+        completed = False
+        break
 
-                with open(LOG_R, 'a') as f:
-                    f.write(f'{spotify},{recco}\n')
-
-            time.sleep(random.uniform(0.8, 1.2))
-            break
-
-        elif resp.status_code == 404:
-            count += 1
-            print(f'HTTP 404 error on batch {count} of {len(batches)}.')
-            break
-        
-        elif resp.status_code == 429:
-            attempts += 1
-            if attempts > MAX_RETRIES:
-                completed = False
-                break
-            
-            sleep = int(resp.headers.get('Retry-After', 30))
-            time.sleep(sleep)
-            continue
-
-        elif resp.status_code == 403:
-            print('HTTP 403 error, forbidden.')
-            completed = False
-            break
-
-        else:
-            attempts += 1
-            if attempts > MAX_RETRIES:
-                completed = False
-                break
-
-            time.sleep(45)
-            continue
+    with open(LOG_R, 'a') as f:
+        for artist in data['content']:
+            spotify = artist['href'].split('/')[-1]
+            f.write(f"{spotify},{artist['id']}\n")
 
 if completed is True:
     df = pd.read_csv(LOG_R, header=0)
-    mapping = dict(zip(df['spotify'], df['recco']))
+    mapping = dict(zip(df['spotify'], df['recco'], strict=True))
 
     # Own file, so rerunning merge.py never drops the uuids
     ids = pd.DataFrame({'id': artists['id'], 'uuid': artists['id'].map(mapping)})
     ids.to_parquet(IDS)
+else:
+    print('Early stoppage, requires rerun.')

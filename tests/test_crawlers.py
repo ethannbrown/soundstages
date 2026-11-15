@@ -161,7 +161,49 @@ class Features:
         return {t.split('-')[0] for t in self.rows(path)['trackID']}
 
 
-CRAWLERS = {'albums': Albums(), 'tracks': Tracks(), 'features': Features()}
+class Ids:
+    script = 'ids.py'
+    out = 'IDS'
+    log = 'LOG_R'
+
+    # ids.py sends 40 artists per request, so 'ok' is a full batch of 40
+    # and every other item is a batch of one
+    def artists(self, item):
+        return [f'{item}-{i}' for i in range(40)] if item == 'ok' else [f'{item}-0']
+
+    def setup(self, tmp_path, items):
+        ids = [a for item in items for a in self.artists(item)]
+        pd.DataFrame({'id': ids}).to_parquet(tmp_path / 'artists.parquet')
+        return {
+            'ARTISTS': tmp_path / 'artists.parquet',
+            'IDS': tmp_path / 'ids.parquet',
+            'LOG_R': tmp_path / 'logR.csv',
+        }
+
+    def url(self, item, page=0):
+        return f'{BASE}/artist?ids={",".join(self.artists(item))}'
+
+    def body(self, item, page=0, pages=1):
+        return {
+            'content': [
+                {'id': f'r-{a}', 'href': f'https://open.spotify.com/artist/{a}'}
+                for a in self.artists(item)
+            ]
+        }
+
+    def rows(self, path):
+        return pd.read_csv(path)
+
+    def logged(self, path):
+        return {a.split('-')[0] for a in self.rows(path)['spotify']}
+
+
+CRAWLERS = {
+    'albums': Albums(),
+    'tracks': Tracks(),
+    'features': Features(),
+    'ids': Ids(),
+}
 
 
 def responses(crawler, case, item):
@@ -198,6 +240,11 @@ def responses(crawler, case, item):
         ('albums', 'connection error', False, False),
         ('tracks', 'connection error', False, False),
         ('features', 'connection error', False, False),
+        ('ids', '404', False, True),
+        ('ids', '429 then ok', True, True),
+        ('ids', '500 then ok', True, True),
+        ('ids', '500 exhausted', False, False),
+        ('ids', 'connection error', False, False),
     ],
 )
 def test_two_items(api, tmp_path, monkeypatch, name, case, logged, written):
@@ -224,6 +271,8 @@ def test_two_items(api, tmp_path, monkeypatch, name, case, logged, written):
         ('albums', '403', 1),
         ('tracks', '403', 1),
         ('features', '403', 1),
+        ('ids', '429 exhausted', 4),
+        ('ids', '403', 1),
     ],
 )
 def test_stops(api, tmp_path, monkeypatch, name, case, calls):
@@ -330,6 +379,18 @@ def test_rerun_after_connection_error(api, tmp_path, monkeypatch, name):
     assert api.calls == [crawler.url('case')]
     assert crawler.logged(paths[crawler.log]) == {'ok', 'case'}
     assert paths[crawler.out].exists()
+
+
+# An incomplete run says so
+@pytest.mark.parametrize('name', CRAWLERS)
+def test_early_stoppage_message(api, tmp_path, monkeypatch, capsys, name):
+    crawler = CRAWLERS[name]
+    paths = crawler.setup(tmp_path, ['case'])
+    api.responses[crawler.url('case')] = [Resp(500)]
+
+    run(crawler, paths, tmp_path, monkeypatch)
+
+    assert 'Early stoppage, requires rerun.' in capsys.readouterr().out
 
 
 # Row contents, so the refactor can't change what gets logged
@@ -441,9 +502,6 @@ def test_id_rows(api, tmp_path, monkeypatch):
     }
     found = {'id': 'r1', 'href': 'https://open.spotify.com/artist/s1'}
     api.responses[f'{BASE}/artist?ids=s1,s2'] = [Resp(200, {'content': [found]})]
-
-    class Ids:
-        script = 'ids.py'
 
     run(Ids(), paths, tmp_path, monkeypatch)
 

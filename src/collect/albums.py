@@ -5,7 +5,7 @@ import threading
 import pandas as pd
 
 sys.path.append('.') # Run from project root
-from config import ARTISTS, ALBUMS, LOG_A
+from config import IDS, ALBUMS, LOG_A
 from api import get
 
 done = set()
@@ -15,7 +15,7 @@ try:
 except FileNotFoundError:
     pass
 
-artists = pd.read_parquet(ARTISTS).dropna()
+ids = pd.read_parquet(IDS).dropna()
 cols = ['uuid', 'albumID', 'title', 'type', 'released', 'popularity', 'artists', 'tracks']
 
 # Returns list of all artist records
@@ -65,7 +65,7 @@ def get_records(iden: str) -> list | int:
     return records
 
 stop = threading.Event()
-todo = [i for i in artists['uuid'] if i not in done]
+todo = [i for i in ids['uuid'] if i not in done]
 
 completed = True
 count = len(done)
@@ -99,9 +99,9 @@ with ThreadPoolExecutor(max_workers=4) as executor, open(LOG_A, 'a') as f:
 
         count += 1
         if count % 100 == 0:
-            print(f'{count} of {len(artists)} artists completed.')
+            print(f'{count} of {len(ids)} artists completed.')
 
-        if count == len(artists):
+        if count == len(ids):
             print('Complete.')
 
 if completed:

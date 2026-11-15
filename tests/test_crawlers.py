@@ -36,11 +36,9 @@ class Albums:
     log = 'LOG_A'
 
     def setup(self, tmp_path, items):
-        pd.DataFrame({'id': items, 'uuid': items}).to_parquet(
-            tmp_path / 'artists.parquet'
-        )
+        pd.DataFrame({'id': items, 'uuid': items}).to_parquet(tmp_path / 'ids.parquet')
         return {
-            'ARTISTS': tmp_path / 'artists.parquet',
+            'IDS': tmp_path / 'ids.parquet',
             'ALBUMS': tmp_path / 'albums.parquet',
             'LOG_A': tmp_path / 'logA.json',
         }

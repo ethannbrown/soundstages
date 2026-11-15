@@ -21,7 +21,7 @@ ALBUMS_CLEAN = INPUTS / 'albums_clean.parquet'
 TRACKS = INPUTS / 'tracks.parquet'
 TRACKS_CLEAN = INPUTS / 'tracks_clean.parquet'
 FEATURES = INPUTS / 'features.parquet'
-DATASET = INPUTS = 'dataset.parquet'
+DATASET = INPUTS / 'dataset.parquet'
 
 # Logs
 LOG_L = RAW / 'logL.csv'

@@ -30,17 +30,24 @@ def test_near_copies(rules, title, expected):
     assert bool(rules.NEAR_COPIES.search(title)) == expected
 
 
-# Likely wrong, pinned as is: 'clean' matches inside words and credits
+# 'clean' is a whole word, and Clean Bandit is an artist, not a clean edit
 @pytest.mark.parametrize(
-    'title',
+    'title, expected',
     [
-        'Say It (Clean Bandit Remix)',
-        'Runaway (The Juan MacLean Remix)',
-        'Tell Me (feat. Clean Bandit)',
+        ('Song (Clean)', True),
+        ('Song - Clean Album Version', True),
+        ('Song - Clean Edit', True),
+        ('Song (Clean Ver.)', True),
+        ('Song (Remix) - Cleaned', True),
+        ('Say It (Clean Bandit Remix)', False),
+        ('Tell Me (feat. Clean Bandit)', False),
+        ('Runaway (The Juan MacLean Remix)', False),
+        ('Beacon - Street Cleaner Remix', False),
+        ('Alone (Cleanse)', False),
     ],
 )
-def test_near_copies_clean_false_positives(rules, title):
-    assert rules.NEAR_COPIES.search(title)
+def test_near_copies_clean(rules, title, expected):
+    assert bool(rules.NEAR_COPIES.search(title)) == expected
 
 
 # A near-copy is only dropped when the artist has an original with the same base

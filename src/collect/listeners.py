@@ -6,7 +6,7 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 
-sys.path.append('.') # Run from project root
+sys.path.append('.')  # Run from project root
 from config import LISTENERS, LOG_L, MAX_RETRIES, NOMINEES
 
 # Resumability
@@ -32,7 +32,7 @@ def get_listeners(iden: str) -> int | None:
         elif resp.status_code == 404:
             print(f'Skipped artist {iden}, not found (404)')
             return None
-        
+
         elif resp.status_code == 429:
             attempts += 1
             if attempts > MAX_RETRIES:
@@ -50,7 +50,7 @@ def get_listeners(iden: str) -> int | None:
             if attempts > MAX_RETRIES:
                 print(f'Gave up on artist {iden} after HTTP {resp.status_code}')
                 return -3
-            
+
             time.sleep(30)
             continue
 
@@ -59,7 +59,7 @@ def get_listeners(iden: str) -> int | None:
 
     if text is None:
         return 0
-    
+
     listeners = text.get_text(strip=True)
     listeners = int(''.join(filter(str.isdigit, listeners)))
 

@@ -31,7 +31,7 @@ LOG_A = RAW / 'logA.json'
 LOG_T = RAW / 'logT.json'
 LOG_F = RAW / 'logF.csv'
 
-# Sampling/ingestion constants
+# Ingestion constants
 MAX_RETRIES = 3
 MAX_WORKERS = 4
 GENRE_COUNT = 19

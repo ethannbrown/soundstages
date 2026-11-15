@@ -4,7 +4,7 @@ import urllib.parse
 import pandas as pd
 import requests
 
-sys.path.append('.') # Run from project root
+sys.path.append('.')  # Run from project root
 from config import NOMINEES
 from genres import SUBS
 from rule import is_artist

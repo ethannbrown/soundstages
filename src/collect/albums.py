@@ -5,7 +5,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import pandas as pd
 
-sys.path.append('.') # Run from project root
+sys.path.append('.')  # Run from project root
 from api import get
 from config import ALBUMS, IDS, LOG_A
 
@@ -19,7 +19,7 @@ except FileNotFoundError:
 ids = pd.read_parquet(IDS).dropna()
 cols = ['uuid', 'albumID', 'title', 'type', 'released', 'popularity', 'artists', 'tracks']
 
-# Returns list of all artist records
+# Returns list of all album records for an artist
 def get_records(iden: str) -> list | int | None:
     total, page = None, 0
 

@@ -7,7 +7,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import pandas as pd
 
-sys.path.append('.') # Run from project root
+sys.path.append('.')  # Run from project root
 from api import get
 from config import FEATURES, LOG_F, TRACKS_CLEAN
 

@@ -2,7 +2,7 @@ import sys
 
 import pandas as pd
 
-sys.path.append('.') # Run from project root
+sys.path.append('.')  # Run from project root
 from config import ARTISTS, LISTENER_FLOOR, LISTENERS, RESOLVED
 
 lis = pd.read_parquet(LISTENERS)

@@ -3,7 +3,7 @@ import sys
 import pandas as pd
 import requests
 
-sys.path.append('.') # Run from project root
+sys.path.append('.')  # Run from project root
 from config import NOMINEES, RESOLVED
 from genres import SUBS
 
@@ -14,7 +14,7 @@ headers = {
 
 noms = pd.read_parquet(NOMINEES)
 idens = noms[noms['genres'].str.len() > 1]['id'].tolist()
-batches = [','.join(idens[i:i+100]) 
+batches = [','.join(idens[i:i+100])
            for i in range(0, len(idens), 100)]
 
 resolved = {row.id: row.genres[0]
@@ -25,7 +25,7 @@ for string in batches:
     url = f'https://everynoise.com/api/{string}'
     data = requests.get(url, headers=headers).json()
 
-    for iden, genres in data.items(): # EN returns genres per artist ranked by relevance-to-artist
+    for iden, genres in data.items():  # EN returns genres per artist ranked by relevance-to-artist
         for genre in genres:
             if genre not in SUBS:
                 continue

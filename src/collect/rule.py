@@ -2,17 +2,17 @@
 VIOLATIONS = {
     'aggregate': ['various', 'compilation', 'compilations', 'sample'],
 
-    'seo': ['sleep', 'noise', 'meditation', 'yoga', 'study', 'lofi', 'lo-fi', 
+    'seo': ['sleep', 'noise', 'meditation', 'yoga', 'study', 'lofi', 'lo-fi',
             'concentration', 'relaxation', 'instrumental', 'christmas', 'halloween', 'holiday'],
 
     'role': ['artist', 'vocal', 'actor', 'composer', 'musician', 'ft', 'feat'],
 
-    'instrument': ['violin', 'viola', 'cello', 'bass', 'guitar', 'ukelele', 'harp', 'banjo', 
-                   'flute', 'clarinet', 'oboe', 'bassoon', 'saxophone', 'trumpet', 'trombone', 
+    'instrument': ['violin', 'viola', 'cello', 'bass', 'guitar', 'ukelele', 'harp', 'banjo',
+                   'flute', 'clarinet', 'oboe', 'bassoon', 'saxophone', 'trumpet', 'trombone',
                    'tuba', 'drum', 'xylophone', 'marimba', 'piano', 'synthesizer'],
 
     'derivative': ['remix', 'cover', 'tribute', 'karaoke', 'soundtrack', 'ost', 'theme', 'score'],
-    
+
     'misc': ['asmr', 'podcast', 'traditional', 'anonymous', 'spotify']
 }
 

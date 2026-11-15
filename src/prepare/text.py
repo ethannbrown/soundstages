@@ -26,7 +26,7 @@ NEAR_COPIES = in_label(r'instrumental|\binst\b\.?|off[\s-]?vocal|a\s*cc?app?ella
                       r'|\bclean(?:ed)?\b(?!\s+bandit)|edited|radio\s+edit|sped[\s-]?up|slowed'
                       r'|\bscrewed\b(?!\s+up\s+click)|nightcore|\b8d\b|tv\s*size')
 
-# e.g., J mixes, spoken commentary
+# e.g., DJ mixes, spoken commentary
 NOT_SONGS = in_label(r'\basot\s*\d+|\bmixed\b|mix\s+cut|continuous(?:\s+dj)?\s+mix|commentary|interview')
 
 # Labels that don't change the recording at all
@@ -35,14 +35,14 @@ NEUTRAL = (r'remaster\w*|\d{4}\s+(?:digital\s+)?remaster\w*|single\s+version|alb
            # 'Original' or 'Original Mix' only as the whole label
            r'|(?:(?<=[\(\[])|(?<=[-–—]\s))original(?:\s+mix)?(?=\s*(?:[\)\]]|$))')
 
-# Common track title labels; shared by a multitude of records
+# Common track titles; shared by a multitude of records
 GENERIC = re.compile(r'^(?:intro|outro|interlude|skit|untitled|prelude|reprise|theme|hidden track'
                      r'|bonus track|track \d+|(?:intro|outro|interlude|untitled) \d+)$')
 
-# Features (obviously)
+# Featured artists (obviously)
 FEAT = re.compile(r'[\(\[]\s*(?:feat\.?|ft\.?|featuring|with)\s', re.I)
 
-# Strips every label for a normalized dataset
+# Strips every label for a normalized title
 def base(title: str | None) -> str:
     if pd.isna(title):
         return ''

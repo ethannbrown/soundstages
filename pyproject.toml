@@ -37,3 +37,8 @@ select = ["E", "F", "UP", "B", "I"]
 
 [tool.ruff.format]
 quote-style = "single"
+
+[dependency-groups]
+dev = [
+    "ruff>=0.17.5",
+]

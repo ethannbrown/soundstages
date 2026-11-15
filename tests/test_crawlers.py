@@ -1,13 +1,12 @@
 import json
 import runpy
 import sys
-import threading
-import time
 from pathlib import Path
 
 import pandas as pd
 import pytest
 import requests
+from fake_api import Resp
 
 import config
 
@@ -17,49 +16,6 @@ import config
 
 ROOT = Path(__file__).resolve().parent.parent
 BASE = 'https://api.reccobeats.com/v1'
-
-
-class Resp:
-    def __init__(self, status, body=None, headers=None):
-        self.status_code = status
-        self.body = body
-        self.headers = headers or {}
-
-    def json(self):
-        return self.body
-
-
-# Serves canned responses per URL, in order; the last one repeats.
-# An unknown URL fails the test (see the api fixture), so no call can go live.
-class FakeAPI:
-    def __init__(self):
-        self.responses = {}
-        self.calls = []
-        self.unknown = []
-        self.sleeps = []
-        self.lock = threading.Lock()
-
-    def get(self, url, **kwargs):
-        with self.lock:
-            self.calls.append(url)
-            if url not in self.responses:
-                self.unknown.append(url)
-                raise AssertionError(f'Unexpected URL {url}')
-            queue = self.responses[url]
-            resp = queue.pop(0) if len(queue) > 1 else queue[0]
-        if isinstance(resp, Exception):
-            raise resp
-        return resp
-
-
-@pytest.fixture
-def api(monkeypatch):
-    fake = FakeAPI()
-    monkeypatch.setattr(requests, 'get', fake.get)
-    monkeypatch.setattr(time, 'sleep', fake.sleeps.append)
-    yield fake
-    # The crawlers catch every exception, so check unknown URLs here
-    assert fake.unknown == []
 
 
 def run(crawler, paths, tmp_path, monkeypatch):

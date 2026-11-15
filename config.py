@@ -8,18 +8,27 @@ BASE = Path(__file__).resolve().parent
 DATA = BASE / 'data'
 RAW = DATA / 'raw'
 INPUTS = DATA / 'inputs'
+
+# Artists
 NOMINEES = INPUTS / 'nominees.parquet'
 LISTENERS = INPUTS / 'listeners.parquet'
 RESOLVED = INPUTS / 'resolved.parquet'
 ARTISTS = INPUTS / 'artists.parquet'
+
+# Records
 ALBUMS = INPUTS / 'albums.parquet'
 ALBUMS_CLEAN = INPUTS / 'albums_clean.parquet'
 TRACKS = INPUTS / 'tracks.parquet'
 TRACKS_CLEAN = INPUTS / 'tracks_clean.parquet'
+FEATURES = INPUTS / 'features.parquet'
+DATASET = INPUTS = 'dataset.parquet'
+
+# Logs
 LOG_L = RAW / 'logL.csv'
 LOG_R = RAW / 'logR.csv'
 LOG_A = RAW / 'logA.json'
 LOG_T = RAW / 'logT.json'
+LOG_F = RAW / 'logF.csv'
 
 # Sampling/ingestion constants
 MAX_RETRIES = 3

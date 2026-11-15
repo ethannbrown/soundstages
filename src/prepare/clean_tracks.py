@@ -1,55 +1,10 @@
-import sys, re, unicodedata
+import sys
 import numpy as np
 import pandas as pd
 
 sys.path.append('.') # Run from project root
 from config import TRACKS, ALBUMS_CLEAN, TRACKS_CLEAN
-
-# Only matches track "labels" within brackets or after a dash
-def in_label(words):
-    bracket = rf'[\(\[][^\)\]]*(?:{words})[^\)\]]*[\)\]]'
-    dash = rf'\s+[-–—]\s*[^-–—]*(?:{words})'
-    return re.compile(f'{bracket}|{dash}', re.I)
-
-# Songs with near identical audio
-NEAR_COPIES = in_label(r'instrumental|\binst\b\.?|off[\s-]?vocal|a\s*cappella|karaoke|clean(?:\s+version)?|edited'
-                      r'|radio\s+edit|sped[\s-]?up|slowed|nightcore|\b8d\b|tv\s*size')
-
-# e.g., J mixes, spoken commentary
-NOT_SONGS = in_label(r'\basot\s*\d+|\bmixed\b|mix\s+cut|continuous(?:\s+dj)?\s+mix|commentary|interview')
-
-# Labels that don't change the recording at all
-NEUTRAL = (r'remaster\w*|\d{4}\s+(?:digital\s+)?remaster\w*|single\s+version|album\s+version|original\s+version'
-           r'|mono|stereo|explicit|bonus\s+track|feat\.?|ft\.?|featuring|with\s')
-
-# Common track title labels; shared by a multitude of records
-GENERIC = re.compile(r'^(?:intro|outro|interlude|skit|untitled|prelude|reprise|theme|hidden track'
-                     r'|bonus track|track \d+|(?:intro|outro|interlude|untitled) \d+)$')
-
-# Features (obviously)
-FEAT = re.compile(r'[\(\[]\s*(?:feat\.?|ft\.?|featuring|with)\s', re.I)
-
-def clean_text(title):
-    s = unicodedata.normalize('NFKC', title).lower()
-    for a, b in [('’', "'"), ('‘', "'"), ('“', '"'), ('”', '"'), ('&', ' and ')]:
-        s = s.replace(a, b)
-    return s
-
-# Strips every label for a normalized dataset
-def base(title):
-    if pd.isna(title):
-        return ''
-    s = re.sub(r'\s*[\(\[][^\)\]]*[\)\]]', '', clean_text(title))
-    s = re.sub(r'\s+[-–—]\s+.*$', '', s)
-    return re.sub(r'\s+', ' ', s).strip()
-
-# Recording key: strip only NEUTRAL labels, so "Song - Remastered" matches "Song" but "Song (Live)" doesn't
-def recording_key(title):
-    if pd.isna(title):
-        return ''
-    s = re.sub(rf'\s*[\(\[][^\)\]]*(?:{NEUTRAL})[^\)\]]*[\)\]]', '', clean_text(title))
-    s = re.sub(rf'\s+[-–—]\s+[^-–—]*(?:{NEUTRAL}).*$', '', s)
-    return re.sub(r'\s+', ' ', s).strip()
+from text import NEAR_COPIES, NOT_SONGS, GENERIC, FEAT, base, recording_key
 
 # Cleaning pipeline
 df = pd.read_parquet(TRACKS)

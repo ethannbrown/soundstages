@@ -45,8 +45,8 @@ features from the ReccoBeats API.
 | Audio features | src/collect/features.py | features.parquet |
 | Join, feature checks, flags | src/prepare/build.py | dataset.parquet |
 
-src/collect/ scripts crawl (Every Noise, Spotify artist pages, ReccoBeats). They ran once
-and aren't rerun. src/prepare/ scripts rebuild from the crawled files in minutes.
+src/collect/ scripts collect from Every Noise at Once, Spotify artist pages, and ReccoBeats. They ran once
+and aren't rerun. src/prepare/ scripts rebuild from the collected files in minutes.
 Paths are in config.py. Data isn't committed.
 
 ## Reproducing the data

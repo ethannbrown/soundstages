@@ -36,11 +36,11 @@ features from the ReccoBeats API.
 | Artists from Every Noise at Once | src/collect/artists.py | nominees.parquet |
 | Monthly listeners | src/collect/listeners.py | listeners.parquet |
 | Primary genre | src/collect/resolve.py | resolved.parquet |
-| Merge, 100-listener floor | src/prepare/merge.py | artists.parquet |
+| Dataset merging | src/prepare/merge.py | artists.parquet |
 | Spotify ID to ReccoBeats ID | src/collect/ids.py | ids.parquet |
-| Albums | src/collect/albums.py | albums.parquet |
+| Album collection | src/collect/albums.py | albums.parquet |
 | Album cleaning | src/prepare/clean_albums.py | albums_clean.parquet |
-| Tracks | src/collect/tracks.py | tracks.parquet |
+| Track collection | src/collect/tracks.py | tracks.parquet |
 | Track cleaning | src/prepare/clean_tracks.py | tracks_clean.parquet |
 | Audio features | src/collect/features.py | features.parquet |
 | Join, feature checks, flags | src/prepare/build.py | dataset.parquet |
@@ -51,7 +51,7 @@ Paths are in config.py. Data isn't committed.
 
 ## Reproducing the data
 
-With the crawled files in data/inputs/, from the project root:
+With the collected files in data/inputs/, from the project root:
 
 ```
 uv sync

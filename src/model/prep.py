@@ -50,5 +50,14 @@ table.loc[inside, 'fold_within'] = assign_within(table.loc[inside, 'uuid'], SEED
 sizes = table['fold_within'].value_counts()
 print(f'Dealt their tracks into {len(sizes)} within-artist folds of {sizes.min():,} to {sizes.max():,} tracks')
 
+# Year, sonic era, heard
+table = table.merge(df[['trackID', 'year']], on='trackID', how='left', validate='one_to_one')
+table['sonic_era'] = pd.cut(
+    table['year'].astype(float),
+    [-np.inf, 1973, 1998, 2016, np.inf],
+    labels=['Acoustic', 'Electric', 'Loudness war', 'Streaming'],
+)
+table['heard'] = table['popularity'] > 0
+
 table.to_parquet(MODEL_TABLE)
 print(f'Saved {len(table):,} rows to {MODEL_TABLE.name}')

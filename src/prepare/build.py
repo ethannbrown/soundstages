@@ -11,7 +11,7 @@ feats = pd.read_parquet(FEATURES)
 feats['trackID'] = feats['trackID'].astype('string[pyarrow]')
 print(f'Loaded {len(tracks):,} tracks')
 
-# Boolean variables for each tracks
+# Boolean variables for each track
 has_feat = tracks['title'].fillna('').str.contains(FEAT)
 tracks['is_multi'] = (tracks['n_artists'] > 1) | has_feat
 tracks['is_short'] = tracks['duration'] < 60_000

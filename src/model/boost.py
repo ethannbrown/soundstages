@@ -13,13 +13,13 @@ from folds import AUDIO, CONTEXT, pinball, split
 BACKGROUND = CONTEXT + ['year', 'genre']
 FEATURES = BACKGROUND + AUDIO
 
-# Quick check: three quantiles, 100,000 tracks per subset
+# Three quantiles, up to 100,000 tracks per subset
 QUANTILES = [0.25, 0.5, 0.9]
 SIZE = 100_000
 
 df = pd.read_parquet(MODEL_TABLE)
 heard = df[df['heard']]
-subsets = ['Acoustic', 'Loudness war']
+subsets = ['all', 'Acoustic', 'Electric', 'Loudness war', 'Streaming']
 
 
 def subset_sample(subset):
@@ -32,7 +32,7 @@ def subset_sample(subset):
 
 
 def fit_boost(X, y, q, train, test):
-    """One fold of XGBoost quantile regression, early stopping on a random 10% of the training rows."""
+    """One fold of XGBoost quantile regression; early stops on a random 10% of training rows"""
     rng = np.random.default_rng(SEED)
     stop = rng.random(len(train)) < 0.1
     fit, val = train[~stop], train[stop]
@@ -53,7 +53,7 @@ def fit_boost(X, y, q, train, test):
 
 
 def shap_summary(model, X_test):
-    """Mean absolute SHAP per feature, and mean SHAP above vs at-or-below the feature's median."""
+    """Mean absolute SHAP per feature; mean SHAP above vs at or below its median"""
     dtest = xgb.DMatrix(X_test, enable_categorical=True)
     trees = (0, model.best_iteration + 1)
     contribs = model.get_booster().predict(dtest, pred_contribs=True, iteration_range=trees)
@@ -63,7 +63,7 @@ def shap_summary(model, X_test):
         shap = contribs[:, j]
         high = low = np.nan
         if col == 'mode':
-            # Binary: major vs minor
+            # Major vs minor
             x = X_test[col].to_numpy()
             high, low = shap[x == 1].mean(), shap[x == 0].mean()
         elif col != 'genre':
@@ -116,14 +116,10 @@ for subset in subsets:
 scores = pd.DataFrame(scores)
 shaps = pd.DataFrame(shaps)
 
-# Append to earlier subsets, replacing any rows for the subsets just fit
 RESULTS.mkdir(exist_ok=True)
-for new, path in [(scores, RESULTS / 'boost_scores.csv'), (shaps, RESULTS / 'boost_shap.csv')]:
-    if path.exists():
-        old = pd.read_csv(path)
-        new = pd.concat([old[~old['subset'].isin(subsets)], new], ignore_index=True)
-    new.to_csv(path, index=False)
-    print(f'Saved {len(new)} rows to {path.name}')
+scores.to_csv(RESULTS / 'boost_scores.csv', index=False)
+shaps.to_csv(RESULTS / 'boost_shap.csv', index=False)
+print(f'Saved {len(scores)} scores and {len(shaps)} SHAP rows')
 
 # r1 per fold, and the gain from audio
 wide = scores.pivot_table(index=['subset', 'quantile', 'fold'], columns='model', values='r1')

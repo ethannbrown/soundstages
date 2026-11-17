@@ -1,12 +1,12 @@
 # soundstages
 
-Does what a song sounds like matter more for big songs than small ones, once you account for who made it,
-its genre and when it came out?
+Does what a song sounds like matter more for big songs than small ones, once you account for who made it, its
+genre and when it came out?
 
-**Who made a song explains 8 to 10 times more of its popularity than how it sounds.** Sound still matters:
-it adds 2 to 5 points of explained variation, most for typical tracks and least near the top, where artist
-reach takes over. And the balance has shifted. For 1974–98 songs, sound was worth about half as much as who
-made them. For streaming-era songs, it's about a fifth.
+**Who made a song explains 8 to 10 times more of its popularity than how it sounds.** Sound still earns its
+place, adding 2 to 5 points of explained variation, most for typical tracks and least near the top, where
+artist reach takes over. The balance has also moved over time: for 1974–98 songs, sound was worth about half
+as much as who made them, and for streaming-era songs it's down to about a fifth.
 
 ![Who made it vs how it sounds, by era](docs/figures/who_vs_sound.png)
 
@@ -15,54 +15,60 @@ Results page: [ethannbrown.github.io/soundstages](https://ethannbrown.github.io/
 ## Findings
 
 **1. Who made it dominates.** Artist reach, genre, release year and length explain 28.7% of the variation in
-popularity (linear regression, tested on artists the model never saw). Adding 10 audio features raises that
-to 31.4%. At the median, XGBoost puts it at 21.0% vs 23.6%.
+popularity, tested on artists the model never saw. Adding the 10 audio features only gets the linear
+regression to 31.4%. XGBoost tells the same story at the median, 21.0% without sound and 23.6% with it.
 
-**2. Sound isn't just recognizing the artist.** Within one artist's own catalog, sound raises the share
-explained from 3.6% to 6.5%. It separates songs from the same artist, not only artists from each other.
+**2. Sound isn't just a proxy for the artist.** If audio features only helped by recognizing who made a track,
+they'd add nothing inside one artist's catalog. They do add something: the share explained goes from 3.6% to
+6.5%, so sound separates songs from the same artist, not just artists from each other.
 
-**3. Sound matters most for typical tracks.** Sound's extra contribution is 3 to 5 points at the 25th
-percentile and the median, and about 3 points near the top (90th percentile), in every era.
+**3. Sound matters most for typical tracks.** Sound adds 3 to 5 points at the 25th percentile and the median
+but only about 3 near the top (90th percentile), and the pattern repeats across eras. Up there, who made it
+does most of the work.
 
 ![Sound's contribution by percentile and era](docs/figures/sound_by_percentile.png)
 
-**4. Sound's contribution stayed flat while who made it grew.** At the median, sound adds 3.7 to 4.9 points
-in every era. What changed is everything else: background facts explain 5% of popularity for songs before
-1974, 10% for 1974–98, 14% for 1999–2016 and 26% for 2017 on.
+**4. Sound held flat while who made it grew.** At the median, sound adds 3.7 to 4.9 points in every era.
+Background facts are what moved, from 5% of popularity for songs before 1974 to 10% for 1974–98, 14% for
+1999–2016 and 26% for 2017 on. My read is that streaming leans on artist reach, with playlists and
+recommendations surfacing artists people already follow, so who made a song counts for more now. The models
+don't test that directly.
 
 **5. Some rules held, others flipped.** Near the top, studio recordings beat live ones in every era, and
-danceable tracks do better in every era (most for older songs). Loudness went from irrelevant before 1974 to
-the biggest sound effect in the streaming era. Length and mood flipped: longer and happier songs did better
-in older eras; shorter and moodier songs do better now.
+danceable tracks do better throughout, most of all for older songs. Loudness went from irrelevant before 1974
+to the biggest sound effect in the streaming era. Length and mood reversed: longer, happier songs did better
+in older eras, and shorter, moodier songs do better now.
 
 ![Which sounds matter, by era](docs/figures/which_sounds.png)
 
-## How we know
+## Methodology
 
-- **Tested on unseen artists.** Scores come from 5-fold cross-validation with each artist's tracks kept in a
-  single fold, so a model never gets graded on an artist it trained on. The within-artist check instead
-  splits each artist's own catalog across folds.
-- **Background-only vs with-sound.** Every model runs twice, once with the background facts and once adding
-  the 10 audio features. The gap is sound's contribution. Pooled across eras, the gap is 5 to 11 times its
-  fold-to-fold spread.
-- **Across the distribution, not just the average.** Quantile regression fits the 25th, 50th, 75th, 90th
-  and 99th percentiles of heard tracks; quantile XGBoost fits the 25th, 50th and 90th. Both are scored on
-  the same held-out folds.
-- **Two model families.** Quantile regression gives readable effects in popularity points. XGBoost captures
-  curves the regression can't, and roughly doubles sound's measured contribution. SHAP values show which
-  sounds drive it.
+- **Unseen artists.** Scores come from 5-fold cross-validation with each artist's tracks kept in one fold, so
+  no model is graded on an artist it trained on. The within-artist check splits each artist's own catalog
+  across folds instead.
+- **Background only vs with sound.** Every model runs twice, once on the background facts and once with the 10
+  audio features added, and the gap between them is sound's contribution. Pooled across eras, that gap is 5 to
+  11 times its fold-to-fold spread, well clear of noise.
+- **The whole distribution, not just the average.** Quantile regression fits the 25th, 50th, 75th, 90th and
+  99th percentiles of heard tracks; quantile XGBoost fits the 25th, 50th and 90th. Both are scored on the same
+  held-out folds.
+- **Two model families.** Quantile regression gives effects in popularity points that are easy to read.
+  XGBoost picks up curves the regression can't and roughly doubles sound's measured contribution, and its SHAP
+  values show which sounds drive it.
 
 ## Limits
 
 - **Popularity is a November 2026 snapshot.** For old songs it measures which ones survived; for new songs,
-  which ones are catching on. Era comparisons mix the two.
-- **Heard tracks only.** 30.6% of tracks score 0. The distribution analysis covers the 1.83M tracks with a
-  score above 0. Half the zeros sit on releases where every track is 0, which usually means a duplicate copy.
-- **Ten summary numbers per song.** Audio features describe sound coarsely, which caps what sound can explain.
-- **The two model families disagree on one detail.** The straight-line model puts sound's peak higher up the
-  distribution; XGBoost, which fits better, puts it at typical tracks. The findings above follow XGBoost.
-- **Dated year 2000.** About 5,000 extra tracks carry the year 2000, likely a placeholder date. They stay in
-  the data, but era boundaries were set without that year.
+  which ones are catching on. Era comparisons mix the two, and survivorship is the obvious alternative to my
+  streaming read in finding 4.
+- **Heard tracks only.** 30.6% of tracks score 0, so the distribution analysis covers the 1.83M tracks above
+  0. Half the zeros sit on releases where every track is 0, which usually means a duplicate copy.
+- **Ten summary numbers per song.** Audio features describe sound coarsely, which caps how much sound can
+  explain here.
+- **The two model families disagree on one detail.** The linear model puts sound's peak higher up the
+  distribution; XGBoost, the better fit, puts it at typical tracks. I follow XGBoost.
+- **Year 2000.** About 5,000 extra tracks are dated 2000, likely a placeholder. I kept them in the data but
+  set the era boundaries without that year.
 
 ## Data
 
@@ -91,7 +97,7 @@ tracks from 19,206 artists. Albums, tracks, popularity and audio features from t
 | Funk | 518 | 48,513 | 46,437 |
 | Gospel | 409 | 12,556 | 24,885 |
 
-Sonic eras were set from yearly medians of the audio features alone, never from popularity: Acoustic (to
+I set the sonic eras from yearly medians of the audio features alone, never from popularity: Acoustic (to
 1973), Electric (1974–98), Loudness war (1999–2016), Streaming (2017 on).
 
 ## Pipeline

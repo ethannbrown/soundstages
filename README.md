@@ -1,38 +1,46 @@
 # soundstages
 
-Does what a song sounds like matter more for big songs than small ones, once you account for who made it, its
-genre and when it came out?
+Is sound what makes a song big?
 
-**Who made a song explains 8 to 10 times more of its popularity than how it sounds.** Sound still earns its
-place, adding 2 to 5 points of explained variation, most for typical tracks and least near the top, where
-artist reach takes over. The balance has also moved over time: for 1974–98 songs, sound was worth about half
-as much as who made them, and for streaming-era songs it's down to about a fifth.
+**Not really.** Sound helps typical songs the most and the biggest songs the least, where the artist's reach
+takes over. The artist (their reach, plus genre, release year and track length) predicts 8 to 10 times more of
+a song's popularity than its sound does, and that gap has widened. The artist mattered about twice as much as
+sound for 1974–98 songs and about five times as much in the streaming era.
 
-![Who made it vs how it sounds, by era](docs/figures/who_vs_sound.png)
+![Artist vs sound, by era](docs/figures/who_vs_sound.png)
+
+*Each bar is one era, measured at the median song. Blue is how much of popularity the artist predicts on their
+own; orange is what the 10 audio features add on top. The label over each bar is how many times larger the
+artist's share is than sound's. Scores come from quantile XGBoost, tested on artists the model never trained
+on.*
 
 Results page: [ethannbrown.github.io/soundstages](https://ethannbrown.github.io/soundstages)
 
 ## Findings
 
-**1. Who made it dominates.** Artist reach, genre, release year and length explain 28.7% of the variation in
+**1. The artist dominates.** Artist reach, genre, release year and length explain 28.7% of the variation in
 popularity, tested on artists the model never saw. Adding the 10 audio features only gets the linear
 regression to 31.4%. XGBoost tells the same story at the median, 21.0% without sound and 23.6% with it.
 
-**2. Sound isn't just a proxy for the artist.** If audio features only helped by recognizing who made a track,
+**2. Sound isn't just a proxy for the artist.** If audio features only helped by recognizing the artist,
 they'd add nothing inside one artist's catalog. They do add something: the share explained goes from 3.6% to
 6.5%, so sound separates songs from the same artist, not just artists from each other.
 
 **3. Sound matters most for typical tracks.** Sound adds 3 to 5 points at the 25th percentile and the median
-but only about 3 near the top (90th percentile), and the pattern repeats across eras. Up there, who made it
+but only about 3 near the top (90th percentile), and the pattern repeats across eras. Up there, the artist
 does most of the work.
 
 ![Sound's contribution by percentile and era](docs/figures/sound_by_percentile.png)
 
-**4. Sound held flat while who made it grew.** At the median, sound adds 3.7 to 4.9 points in every era.
-Background facts are what moved, from 5% of popularity for songs before 1974 to 10% for 1974–98, 14% for
-1999–2016 and 26% for 2017 on. My read is that streaming leans on artist reach, with playlists and
-recommendations surfacing artists people already follow, so who made a song counts for more now. The models
-don't test that directly.
+*Each line is one era. Its height is how much adding sound improves the prediction, in percentage points, at
+three spots in the popularity distribution: the 25th percentile, the median and the 90th percentile. Error
+bars show the spread across the 5 cross-validation folds.*
+
+**4. Sound held flat while the artist's share grew.** At the median, sound adds 3.7 to 4.9 points in every
+era. The artist's share is what moved, from 5% of popularity for songs before 1974 to 10% for 1974–98, 14% for
+1999–2016 and 26% for 2017 on. I believe streaming leans on artist reach, with playlists and recommendations
+surfacing artists people already follow, so the artist counts for more now. The models don't test that
+directly.
 
 **5. Some rules held, others flipped.** Near the top, studio recordings beat live ones in every era, and
 danceable tracks do better throughout, most of all for older songs. Loudness went from irrelevant before 1974
@@ -41,14 +49,18 @@ in older eras, and shorter, moodier songs do better now.
 
 ![Which sounds matter, by era](docs/figures/which_sounds.png)
 
+*Each line is one audio feature, measured near the top (90th percentile). A point is the average popularity
+difference, in points, between tracks above that feature's median and tracks below it, taken from XGBoost's
+SHAP values. Above zero means more of that feature goes with higher predicted popularity.*
+
 ## Methodology
 
 - **Unseen artists.** Scores come from 5-fold cross-validation with each artist's tracks kept in one fold, so
   no model is graded on an artist it trained on. The within-artist check splits each artist's own catalog
   across folds instead.
-- **Background only vs with sound.** Every model runs twice, once on the background facts and once with the 10
-  audio features added, and the gap between them is sound's contribution. Pooled across eras, that gap is 5 to
-  11 times its fold-to-fold spread, well clear of noise.
+- **Artist only vs with sound.** Every model runs twice, once on the artist alone and once with the 10 audio
+  features added, and the gap between them is sound's contribution. Pooled across eras, that gap is 5 to 11
+  times its fold-to-fold spread, well clear of noise.
 - **The whole distribution, not just the average.** Quantile regression fits the 25th, 50th, 75th, 90th and
   99th percentiles of heard tracks; quantile XGBoost fits the 25th, 50th and 90th. Both are scored on the same
   held-out folds.
@@ -59,8 +71,8 @@ in older eras, and shorter, moodier songs do better now.
 ## Limits
 
 - **Popularity is a November 2026 snapshot.** For old songs it measures which ones survived; for new songs,
-  which ones are catching on. Era comparisons mix the two, and survivorship is the obvious alternative to my
-  streaming read in finding 4.
+  which ones are catching on. Era comparisons mix the two, and survivorship is the obvious alternative to the
+  streaming explanation in finding 4.
 - **Heard tracks only.** 30.6% of tracks score 0, so the distribution analysis covers the 1.83M tracks above
   0. Half the zeros sit on releases where every track is 0, which usually means a duplicate copy.
 - **Ten summary numbers per song.** Audio features describe sound coarsely, which caps how much sound can

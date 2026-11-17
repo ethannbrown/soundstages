@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>soundstages: who made it vs how it sounds</title>
+<title>soundstages: artist vs sound</title>
 <style>
   :root { --ink: #2b2b29; --muted: #6f6e69; --rule: #e6e5e0; --surface: #fcfcfb; --accent: #eb6834; }
   * { box-sizing: border-box; }
@@ -33,57 +33,68 @@
 <body>
 <main>
   <p class="kicker">soundstages · Ethan Brown</p>
-  <h1>Who made a song explains <em>8 to 10 times</em> more of its popularity than how it sounds.</h1>
-  <p class="lede">Sound still matters, adding 2 to 5 points of explained variation, most for typical tracks and
-  least near the top, where artist reach takes over. And the balance has shifted: for 1974–98 songs, sound was
-  worth about half as much as who made them. For streaming-era songs, it's about a fifth.</p>
+  <h1>Is sound what makes a song big?</h1>
+  <p class="lede"><b>Not really.</b> Sound helps typical songs the most and the biggest songs the least, where
+  the artist's reach takes over. The artist (their reach, plus genre, release year and track length) predicts
+  8 to 10 times more of a song's popularity than its sound does, and that gap has widened. The artist
+  mattered about twice as much as sound for 1974–98 songs and about five times as much in the streaming era.</p>
 
   <div class="stats">
     <div class="stat"><b>2.64M</b><span>tracks from 19,206 artists, collected and cleaned from scratch</span></div>
-    <div class="stat"><b>28.7% → 31.4%</b><span>share of popularity explained, before and after adding sound</span></div>
-    <div class="stat"><b>48% → 19%</b><span>sound's weight relative to who made it, 1974–98 vs streaming era</span></div>
+    <div class="stat"><b>28.7% → 31.4%</b><span>share of popularity explained by the artist, then with sound added</span></div>
+    <div class="stat"><b>2x → 5x</b><span>how much more the artist matters than sound, 1974–98 vs the streaming era</span></div>
   </div>
 
-  <h2>Sound stayed flat. Who made it grew.</h2>
-  <p>At the median track, sound adds 3.7 to 4.9 points in every era. What changed is everything else: artist
-  reach, genre and year explain 5% of popularity for songs before 1974 and 26% for songs since 2017.</p>
+  <h2>Sound held flat while the artist's share grew</h2>
+  <p>At the median song, sound adds 3.7 to 4.9 points in every era. The artist's share is what moved, from 5% of
+  popularity for songs before 1974 to 26% for songs since 2017. I believe streaming leans on artist reach,
+  with playlists and recommendations surfacing artists people already follow. The models don't test that
+  directly.</p>
   <figure>
-    <img src="figures/who_vs_sound.png" alt="Stacked bars by era: who made it explains 5, 10, 14 and 26 percent; sound adds about 4 points in each era.">
-    <figcaption>Quantile XGBoost at the median of heard tracks, artist-held-out 5-fold cross-validation.</figcaption>
+    <img src="figures/who_vs_sound.png" alt="Stacked bars by era: the artist explains 5, 10, 14 and 26 percent; sound adds about 4 points in each era.">
+    <figcaption>Each bar is one era, measured at the median song. Blue is how much of popularity the artist
+    predicts on their own; orange is what the 10 audio features add on top. The label over each bar is how many
+    times larger the artist's share is than sound's. Quantile XGBoost, tested on artists the model never trained
+    on.</figcaption>
   </figure>
 
-  <h2>Sound matters most for typical tracks</h2>
-  <p>In every era, sound's extra contribution is largest for typical and lower tracks and smallest near the
-  top, where who made the song decides more.</p>
+  <h2>Sound matters most for typical songs</h2>
+  <p>In every era, sound adds the most for typical and lower songs and the least near the top, where the artist
+  does most of the work.</p>
   <figure>
     <img src="figures/sound_by_percentile.png" alt="Lines by era: sound's contribution is 3 to 5 points at the 25th percentile and median, about 3 points at the 90th.">
-    <figcaption>Error bars show the spread across the 5 folds.</figcaption>
+    <figcaption>Each line is one era. Its height is how much adding sound improves the prediction, in percentage
+    points, at the 25th percentile, the median and the 90th percentile of popularity. Error bars show the spread
+    across the 5 cross-validation folds.</figcaption>
   </figure>
 
   <h2>Some rules held, others flipped</h2>
   <ul>
-    <li><b>Held:</b> studio recordings beat live ones, and danceable tracks do better near the top, in every era.</li>
+    <li><b>Held:</b> near the top, studio recordings beat live ones and danceable tracks do better, in every era.</li>
     <li><b>Grew:</b> loudness went from irrelevant before 1974 to the biggest sound effect in the streaming era.</li>
-    <li><b>Flipped:</b> longer and happier songs did better in older eras; shorter and moodier songs do better now.</li>
+    <li><b>Flipped:</b> longer, happier songs did better in older eras; shorter, moodier songs do better now.</li>
   </ul>
   <figure>
     <img src="figures/which_sounds.png" alt="Lines by era for six features: loudness rises from 0 to 4 points, length falls from +2 to -1.6, happier falls from +0.3 to -0.7, live-sounding stays near -2.">
-    <figcaption>SHAP values near the top (90th percentile): tracks above vs below each feature's median.</figcaption>
+    <figcaption>Each line is one audio feature, measured near the top (90th percentile). A point is the average
+    popularity difference, in points, between tracks above that feature's median and tracks below it, taken
+    from XGBoost's SHAP values. Above zero means more of that feature goes with higher predicted
+    popularity.</figcaption>
   </figure>
 
-  <h2>How we know</h2>
+  <h2>Methodology</h2>
   <ul>
     <li>Every model is tested on artists it never trained on.</li>
-    <li>Each model runs with and without the 10 audio features; the gap is sound's contribution.</li>
+    <li>Each model runs on the artist alone and again with the 10 audio features added; the gap is sound's contribution.</li>
     <li>Within one artist's own catalog, sound still helps (3.6% → 6.5% explained), so it isn't just recognizing the artist.</li>
     <li>Quantile regression and quantile XGBoost cover the whole distribution, not only the average.</li>
   </ul>
 
   <h2>Limits</h2>
   <ul>
-    <li>Popularity is a November 2026 snapshot: for old songs it measures survival, for new songs traction. Era comparisons mix the two.</li>
+    <li>Popularity is a November 2026 snapshot. For old songs it measures which ones survived, for new songs which ones are catching on, and era comparisons mix the two.</li>
     <li>The distribution analysis covers the 1.83M tracks with popularity above 0.</li>
-    <li>Ten audio features describe sound coarsely, which caps what sound can explain.</li>
+    <li>Ten audio features describe sound coarsely, which caps how much sound can explain.</li>
   </ul>
 
   <footer>Data: Every Noise at Once and the ReccoBeats API. Code and full method on

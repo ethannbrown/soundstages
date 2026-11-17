@@ -40,4 +40,5 @@ LISTENER_FLOOR = 100
 MODEL_TABLE = INPUTS / 'model_table.parquet'
 PREDICTIONS = DATA / 'predictions'
 RESULTS = DATA / 'results'
+FIGURES = BASE / 'docs' / 'figures'
 N_FOLDS = 5

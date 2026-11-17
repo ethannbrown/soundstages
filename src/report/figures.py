@@ -23,6 +23,8 @@ FEATURE_COLORS = ['#2a78d6', '#eb6834', '#1baf7a', '#eda100', '#e87ba4', '#00830
 
 plt.rcParams.update(
     {
+        'font.family': 'sans-serif',
+        'font.sans-serif': ['Inter', 'DejaVu Sans'],
         'font.size': 11,
         'axes.edgecolor': GRID,
         'axes.labelcolor': MUTED,
@@ -49,32 +51,30 @@ summary = (
 )
 print(f'Loaded XGBoost scores for {scores["subset"].nunique()} subsets')
 
-# Figure 1: who made it vs how it sounds, median track, by era
+# Figure 1: artist vs sound, median track, by era
 median = summary.xs(0.5, level='quantile').loc[ERAS]
 fig, ax = plt.subplots(figsize=(8, 4.8))
 x = range(len(ERAS))
-ax.bar(x, median['background'], width=0.6, color=BLUE, label='Who made it (artist reach, genre, year, length)')
+ax.bar(x, median['background'], width=0.6, color=BLUE, label='Artist (reach, plus genre, year, length)')
 ax.bar(
     x,
     median['gain'],
     width=0.6,
     bottom=median['background'] + 0.3,
     color=ORANGE,
-    label='How it sounds (10 audio features)',
+    label='Sound (10 audio features)',
 )
 for i, era in enumerate(ERAS):
-    share = median.loc[era, 'gain'] / median.loc[era, 'background']
+    times = median.loc[era, 'background'] / median.loc[era, 'gain']
     top = median.loc[era, 'background'] + median.loc[era, 'gain']
-    ax.text(i, top + 0.8, f'sound = {share:.0%}\nof who made it', ha='center', va='bottom', color=INK, fontsize=9.5)
+    ax.text(i, top + 0.8, f'artist = {times:.1f}x\nsound', ha='center', va='bottom', color=INK, fontsize=9.5)
 ax.set_xticks(list(x), [f'{e}\n{y}' for e, y in zip(ERAS, ERA_YEARS, strict=True)])
 ax.set_ylabel('Share of popularity explained (%)')
 ax.set_ylim(0, 40)
 ax.yaxis.grid(True, color=GRID)
 ax.set_axisbelow(True)
 ax.legend(frameon=False, loc='upper left', fontsize=9.5, labelcolor=INK)
-ax.set_title(
-    'Sound adds about the same in every era. Who made the song keeps growing.', loc='left', color=INK, fontsize=12
-)
+ax.set_title('The artist matters more each era; sound stays about the same', loc='left', color=INK, fontsize=12)
 fig.tight_layout()
 fig.savefig(FIGURES / 'who_vs_sound.png', dpi=200)
 plt.close(fig)

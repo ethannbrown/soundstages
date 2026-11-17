@@ -60,7 +60,7 @@ def base(title: str | None) -> str:
     return re.sub(r'\s+', ' ', s).strip()
 
 
-# Recording key: strip only NEUTRAL labels, so "Song - Remastered" matches "Song" but "Song (Live)" doesn't
+# Strips only NEUTRAL labels (e.g., "Song - Remastered" is "Song", "Song (Live)" isn't)
 def recording_key(title: str | None) -> str:
     if pd.isna(title):
         return ''

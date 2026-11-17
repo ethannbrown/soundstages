@@ -5,7 +5,7 @@ import pytest
 from folds import assign_between, assign_within, mse, r2, rmse, split, within_target
 
 
-# Toy table: 23 artists with 3 to 11 tracks each
+# Toy table of 23 artists with 3 to 11 tracks each
 @pytest.fixture
 def toy():
     rng = np.random.default_rng(0)

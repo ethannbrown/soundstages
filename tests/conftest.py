@@ -7,8 +7,7 @@ import text
 from fake_api import FakeAPI
 
 
-# The track and album title rules both live in text.py, so both fixtures hand
-# the tests the same module.
+# Track and album rules both live in text.py
 @pytest.fixture(scope='module')
 def rules():
     return text
@@ -26,5 +25,5 @@ def api(monkeypatch):
     monkeypatch.setattr(requests, 'get', fake.get)
     monkeypatch.setattr(time, 'sleep', fake.sleeps.append)
     yield fake
-    # The collectors catch every exception, so check unknown URLs here
+    # Collectors catch every exception; unknown URLs are checked here
     assert fake.unknown == []

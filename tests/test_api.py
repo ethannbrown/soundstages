@@ -28,7 +28,7 @@ def stop():
         ([Resp(429)], -1, 4, [30, 30, 30]),
         ([Resp(500), Resp(200, BODY)], BODY, 2, [45]),
         ([Resp(503)], -3, 4, [45, 45, 45]),
-        # 429s and 5xx share one count: the fourth failure of either kind ends it
+        # 429s and 5xx share one count; the fourth failure of either ends it
         ([Resp(429), Resp(429), Resp(500), Resp(500)], -3, 4, [30, 30, 45]),
     ],
 )

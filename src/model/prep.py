@@ -28,12 +28,12 @@ table['era'] = pd.cut(
 for col in ['is_multi', 'is_short', 'is_long', 'is_spoken']:
     table[col] = df[col].astype(bool)
 
-# Between artists: whole artists go to one fold
+# Between artists; each artist in one fold
 table['fold_between'] = assign_between(table['uuid'], SEED)
 sizes = table['fold_between'].value_counts()
 print(f'Split artists into {len(sizes)} between-artist folds of {sizes.min():,} to {sizes.max():,} tracks')
 
-# Within artists: solo tracks of artists with 5+ of them
+# Within artists; solo tracks of artists with 5+ of them
 solo = ~table['is_multi']
 n_solo = solo.groupby(table['uuid'], observed=True).transform('sum')
 table['in_within'] = solo & (n_solo >= 5)

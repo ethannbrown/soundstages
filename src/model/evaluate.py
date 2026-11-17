@@ -55,8 +55,7 @@ RESULTS.mkdir(exist_ok=True)
 scores = pd.DataFrame(scores)
 scores.to_csv(RESULTS / 'scores.csv', index=False)
 
-# Audio's added value: MSE without audio minus MSE with it, same model and setup,
-# and that gain as a percent of the MSE without audio
+# Audio gain (MSE without audio minus with), also as a percent
 errors = pd.DataFrame(errors)
 cell = ['model', 'setup', 'level', 'group']
 mse_table = errors.pivot_table(index=cell + ['fold'], columns='audio', values='mse')

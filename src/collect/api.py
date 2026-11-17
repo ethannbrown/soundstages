@@ -9,11 +9,9 @@ from config import MAX_RETRIES
 HEADERS = {'Accept': 'application/json'}
 
 
-# One GET to the ReccoBeats API, with the retry rules albums.py, tracks.py and
-# features.py share. Returns the JSON body, None for a 404, or a sentinel:
-# -1 still rate limited (429) after MAX_RETRIES, -2 forbidden (403),
-# -3 any other error after MAX_RETRIES, -4 stopped because another worker set stop.
-# Connection errors aren't caught; the main thread catches them.
+# Shared GET for the ReccoBeats scripts; returns JSON, None for a 404, or a sentinel
+# -1 429, -2 403, -3 retries exhausted, -4 stopped by another worker
+# Connection errors are left to the main thread
 def get(url: str, stop: threading.Event) -> dict | int | None:
     attempts = 0
     while True:

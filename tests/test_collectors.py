@@ -10,9 +10,8 @@ import requests
 import config
 from fake_api import Resp
 
-# Pins how albums.py, tracks.py and features.py react to each kind of API response.
-# Each collector runs for real, inside tmp_path, with requests.get replaced by a fake.
-# Nothing here touches the network or the data folders.
+# Pins how albums.py, tracks.py, features.py and ids.py react to each API response
+# Each collector runs for real in tmp_path with a fake requests.get; no network, no data folders
 
 ROOT = Path(__file__).resolve().parent.parent
 BASE = 'https://api.reccobeats.com/v1'
@@ -129,8 +128,7 @@ class Features:
     out = 'FEATURES'
     log = 'LOG_F'
 
-    # features.py sends 40 tracks per request, so 'ok' is a full batch of 40
-    # and every other item is a batch of one
+    # 40 tracks per request; 'ok' is a full batch, every other item a batch of one
     def tracks(self, item):
         return [f'{item}-{i}' for i in range(40)] if item == 'ok' else [f'{item}-0']
 
@@ -161,8 +159,7 @@ class Ids:
     out = 'IDS'
     log = 'LOG_R'
 
-    # ids.py sends 40 artists per request, so 'ok' is a full batch of 40
-    # and every other item is a batch of one
+    # 40 artists per request; 'ok' is a full batch, every other item a batch of one
     def artists(self, item):
         return [f'{item}-{i}' for i in range(40)] if item == 'ok' else [f'{item}-0']
 
@@ -252,7 +249,7 @@ def test_two_items(api, tmp_path, monkeypatch, name, case, logged, written):
     assert paths[collector.out].exists() == written
 
 
-# 429 and 403 stop the whole run, so these use one item to keep thread order out of it.
+# 429 and 403 stop the whole run; one item keeps thread order out of it
 # Columns: collector, case, calls made
 @pytest.mark.parametrize(
     'name, case, calls',
@@ -295,7 +292,7 @@ def test_waits(api, tmp_path, monkeypatch, name, case, wait):
     assert wait in api.sleeps
 
 
-# MAX_RETRIES is 3: the first try plus 3 retries, 45 s apart
+# First try plus MAX_RETRIES (3) retries, 45 s apart
 @pytest.mark.parametrize('name', COLLECTORS)
 def test_retries(api, tmp_path, monkeypatch, name):
     collector = COLLECTORS[name]
@@ -323,9 +320,7 @@ def test_pages(api, tmp_path, monkeypatch, name):
     assert paths[collector.out].exists()
 
 
-# Each page gets its own retry budget (api.get counts per request): 3 retries on
-# page 0 and 1 on page 1 is fine. Before api.py the budget was shared across pages,
-# so they added up to 4 and the run stopped.
+# Each page gets its own retry budget; 3 retries on page 0 and 1 on page 1 is fine
 # Columns: collector, is the album/artist logged, is the output parquet written
 @pytest.mark.parametrize(
     'name, logged, written',
@@ -381,7 +376,7 @@ def test_early_stoppage_message(api, tmp_path, monkeypatch, capsys, name):
     assert 'Early stoppage, requires rerun.' in capsys.readouterr().out
 
 
-# Row contents, so the refactor can't change what gets logged
+# Row contents, pinned
 
 
 def test_album_rows(api, tmp_path, monkeypatch):
@@ -457,7 +452,7 @@ def test_track_rows(api, tmp_path, monkeypatch):
 def test_feature_rows(api, tmp_path, monkeypatch):
     collector = Features()
     paths = collector.setup(tmp_path, ['b'])
-    # Two tracks in one batch is not possible with these helpers, so build it here
+    # Helpers can't make two tracks in one batch; built here
     pd.DataFrame({'trackID': ['t1', 't2']}).to_parquet(paths['TRACKS_CLEAN'])
     found = {'id': 't1', **{f: 0.5 for f in FEATS}, 'key': 2, 'mode': 1}
     api.responses[f'{BASE}/audio-features?ids=t1,t2'] = [Resp(200, {'content': [found]})]

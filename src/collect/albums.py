@@ -29,7 +29,7 @@ def get_records(iden: str) -> list | int | None:
         url = f'https://api.reccobeats.com/v1/artist/{iden}/album?page={page}&size=50'
         data = get(url, stop)
 
-        # 404: skipped, and asked for again on the next run
+        # 404 skipped; asked for again next run
         if data is None:
             print(f'Skipped artist {iden}, not found (404)')
             return None
@@ -97,7 +97,7 @@ with ThreadPoolExecutor(max_workers=4) as executor, open(LOG_A, 'a') as f:
             completed = False
             continue
 
-        # 404: nothing to log, asked for again on the next run
+        # 404 has nothing to log; asked for again next run
         if rows is None:
             continue
 

@@ -28,7 +28,7 @@ FEATS = [
 ]
 cols = ['trackID'] + FEATS
 
-# Log is CSV, not JSON: on resume only the trackID column is read, which takes seconds
+# CSV log; resume reads only trackID
 done = set()
 if os.path.exists(LOG_F):
     done = set(pd.read_csv(LOG_F, usecols=['trackID'])['trackID'])
@@ -45,7 +45,7 @@ def get_features(batch: list) -> list | int:
     url = f'https://api.reccobeats.com/v1/audio-features?ids={",".join(batch)}'
     data = get(url, stop)
 
-    # 404: none of these tracks have features
+    # 404 means none of these tracks have features
     if data is None:
         return [[t] + [None] * len(FEATS) for t in batch]
 

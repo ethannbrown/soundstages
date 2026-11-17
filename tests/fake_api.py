@@ -11,8 +11,8 @@ class Resp:
         return self.body
 
 
-# Stands in for requests.get. Serves canned responses per URL, in order; the last one
-# repeats. An unknown URL fails the test (see the api fixture), so no call can go live.
+# Stands in for requests.get; canned responses per URL, in order, the last one repeats
+# Unknown URLs fail the test (see the api fixture)
 class FakeAPI:
     def __init__(self):
         self.responses = {}

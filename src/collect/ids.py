@@ -21,7 +21,7 @@ idens = [iden for iden in artists['id'] if iden not in done]
 
 batches = [','.join(idens[i : i + 40]) for i in range(0, len(idens), 40)]
 
-# One request at a time, so nothing sets stop; api.get takes it anyway
+# api.get needs a stop event; nothing sets it here
 stop = threading.Event()
 
 completed = True
@@ -35,7 +35,7 @@ for count, batch in enumerate(batches, start=1):
         completed = False
         break
 
-    # 404: skipped, and asked for again on the next run
+    # 404 skipped; asked for again next run
     if data is None:
         print(f'Skipped batch {count} of {len(batches)}, not found (404)')
         continue
@@ -46,7 +46,7 @@ for count, batch in enumerate(batches, start=1):
     if data == -2:
         print('Forbidden (403), stopping')
 
-    # A sentinel from api.get: -1 rate limited, -2 forbidden, -3 retries exhausted
+    # A sentinel from api.get, -1 to -3
     if isinstance(data, int):
         completed = False
         break
@@ -60,7 +60,7 @@ if completed is True:
     df = pd.read_csv(LOG_R, header=0)
     mapping = dict(zip(df['spotify'], df['recco'], strict=True))
 
-    # Own file, so rerunning merge.py never drops the uuids
+    # Own file; rerunning merge.py keeps the uuids
     ids = pd.DataFrame({'id': artists['id'], 'uuid': artists['id'].map(mapping)})
     ids.to_parquet(IDS)
 else:

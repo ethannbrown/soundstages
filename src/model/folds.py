@@ -21,6 +21,7 @@ AUDIO = [
     'valence',
 ]
 
+
 def assign_between(uuids: pd.Series, seed: int) -> pd.Series:
     """Shuffle the artists, then artist i goes to fold i % N_FOLDS."""
     uuids = uuids.astype(str)
@@ -42,7 +43,7 @@ def assign_within(uuids: pd.Series, seed: int) -> pd.Series:
 
 
 def split(df: pd.DataFrame, setup: str):
-    """Yield (fold, train, test) as row positions in df. Within uses in_within rows only."""
+    """Yields (fold, train, test) row positions; within uses in_within rows only"""
     if setup == 'between':
         rows = np.arange(len(df))
         fold = df['fold_between'].to_numpy()
@@ -65,7 +66,7 @@ def demean(train: np.ndarray, test: np.ndarray, g_train: np.ndarray, g_test: np.
     size = max(g_train.max(), g_test.max()) + 1
     counts = np.bincount(g_train, minlength=size)
 
-    # Groups with no training rows get a NaN mean, so a test row without one shows up
+    # NaN mean for groups with no training rows
     with np.errstate(invalid='ignore'):
         means = np.column_stack(
             [np.bincount(g_train, weights=train[:, j], minlength=size) / counts for j in range(train.shape[1])]
@@ -100,11 +101,7 @@ def standardize(train: np.ndarray, test: np.ndarray, n_numeric: int):
 
 
 def fit_linear(X, y, n_numeric, train, test, groups=None):
-    """One fold of linear regression. Returns test y, test predictions and coefficients.
-
-    With groups (within artists), both y and the features are demeaned by the
-    artist's training means (fixed effects).
-    """
+    """One fold of linear regression; demeans by artist when groups is given"""
     X_train, X_test = standardize(X[train], X[test], n_numeric)
     y_train, y_test = y[train], y[test]
     if groups is not None:
@@ -142,11 +139,7 @@ def quantile_designs(df: pd.DataFrame):
 
 
 def quantile_folds(df: pd.DataFrame):
-    """Intercept-only, background and audio quantile regressions on every between-artist fold.
-
-    Returns scores (quantile, fold, model, pinball, r1) and audio coefficients
-    (quantile, fold, feature, coef), per sd of each feature.
-    """
+    """Intercept-only, background and audio quantile regressions on each between-artist fold"""
     X_context, X_audio, names = quantile_designs(df)
     y = df['popularity'].to_numpy()
     models = [('background', X_context, len(CONTEXT)), ('audio', X_audio, len(CONTEXT + AUDIO))]

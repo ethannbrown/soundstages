@@ -1,6 +1,6 @@
 import pytest
 
-# Pins the title rules in clean_tracks.py as they are today.
+# Pins the title rules in text.py
 
 
 # Songs with near identical audio, matched only inside brackets or after a spaced dash
@@ -136,7 +136,7 @@ def test_recording_key(rules, title, expected):
     assert rules.recording_key(title) == expected
 
 
-# A neutral label after a dash counts with or without a space after it, as in in_label
+# A neutral label after a dash counts with or without a space after it, like in_label
 @pytest.mark.parametrize(
     'title, expected',
     [
@@ -166,7 +166,7 @@ def test_recording_key_curly_apostrophe(rules):
         ('  Song   Title  ', 'song title'),
         ('Rock & Roll', 'rock and roll'),
         ('Won’t Stop', "won't stop"),
-        # base needs a space on both sides of the dash: 'Title -Subtitle-' stays whole
+        # base needs a space on both sides of the dash; 'Title -Subtitle-' stays whole
         ('Song -Live', 'song -live'),
         ('Demonz -n- My Sleep', 'demonz -n- my sleep'),
         (None, ''),

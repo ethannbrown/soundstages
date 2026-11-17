@@ -76,9 +76,9 @@ ax.set_axisbelow(True)
 ax.legend(frameon=False, loc='upper left', fontsize=9.5, labelcolor=INK)
 ax.set_title('The artist matters more each era; sound stays about the same', loc='left', color=INK, fontsize=12)
 fig.tight_layout()
-fig.savefig(FIGURES / 'who_vs_sound.png', dpi=200)
+fig.savefig(FIGURES / 'artist_vs_sound.png', dpi=200)
 plt.close(fig)
-print('Saved who_vs_sound.png')
+print('Saved artist_vs_sound.png')
 
 # Figure 2: sound's gain at each point of the distribution, by era
 fig, ax = plt.subplots(figsize=(8, 4.8))

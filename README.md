@@ -7,7 +7,7 @@ takes over. The artist (their reach, plus genre, release year and track length) 
 a song's popularity than its sound does, and that gap has widened. The artist mattered about twice as much as
 sound for 1974–98 songs and about five times as much in the streaming era.
 
-![Artist vs sound, by era](docs/figures/who_vs_sound.png)
+![Artist vs sound, by era](docs/figures/artist_vs_sound.png)
 
 *Each bar is one era, measured at the median song. Blue is how much of popularity the artist predicts on their
 own; orange is what the 10 audio features add on top. The label over each bar is how many times larger the

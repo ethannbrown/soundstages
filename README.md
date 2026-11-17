@@ -2,7 +2,7 @@
 
 Is sound what makes a song big?
 
-**Not really.** Sound helps typical songs the most and the biggest songs the least, where the artist's reach
+**Not really.** Sound helps "typical" (median pop.) songs the most and the biggest (most popular) songs the least, where the artist's reach
 takes over. The artist (their reach, plus genre, release year and track length) predicts 8 to 10 times more of
 a song's popularity than its sound does, and that gap has widened. The artist mattered about twice as much as
 sound for 1974–98 songs and about five times as much in the streaming era.
@@ -18,15 +18,15 @@ Results page: [ethannbrown.github.io/soundstages](https://ethannbrown.github.io/
 
 ## Findings
 
-**1. The artist dominates.** Artist reach, genre, release year and length explain 28.7% of the variation in
+**1. Artist identity is a dominating factor:** Artist reach, genre, release year and length explain 28.7% of the variation in
 popularity, tested on artists the model never saw. Adding the 10 audio features only gets the linear
 regression to 31.4%. XGBoost tells the same story at the median, 21.0% without sound and 23.6% with it.
 
-**2. Sound isn't just a proxy for the artist.** If audio features only helped by recognizing the artist,
+**2. Sound is more than an artist or genre indicator:** If audio features only helped by recognizing the artist,
 they'd add nothing inside one artist's catalog. They do add something: the share explained goes from 3.6% to
 6.5%, so sound separates songs from the same artist, not just artists from each other.
 
-**3. Sound matters most for typical tracks.** Sound adds 3 to 5 points at the 25th percentile and the median
+**3. Sound matters most for typical tracks** Sound adds 3 to 5 points at the 25th percentile and the median
 but only about 3 near the top (90th percentile), and the pattern repeats across eras. Up there, the artist
 does most of the work.
 
@@ -36,13 +36,13 @@ does most of the work.
 three spots in the popularity distribution: the 25th percentile, the median and the 90th percentile. Error
 bars show the spread across the 5 cross-validation folds.*
 
-**4. Sound held flat while the artist's share grew.** At the median, sound adds 3.7 to 4.9 points in every
+**4. Sound stayed flat while the artist's share grew:** At the median, sound adds 3.7 to 4.9 points in every
 era. The artist's share is what moved, from 5% of popularity for songs before 1974 to 10% for 1974–98, 14% for
 1999–2016 and 26% for 2017 on. I believe streaming leans on artist reach, with playlists and recommendations
 surfacing artists people already follow, so the artist counts for more now. The models don't test that
 directly.
 
-**5. Some rules held, others flipped.** Near the top, studio recordings beat live ones in every era, and
+**5. Some rules are timeless while others flipped:** Near the top, studio recordings beat live ones in every era, and
 danceable tracks do better throughout, most of all for older songs. Loudness went from irrelevant before 1974
 to the biggest sound effect in the streaming era. Length and mood reversed: longer, happier songs did better
 in older eras, and shorter, moodier songs do better now.
@@ -55,31 +55,28 @@ SHAP values. Above zero means more of that feature goes with higher predicted po
 
 ## Methodology
 
-- **Unseen artists.** Scores come from 5-fold cross-validation with each artist's tracks kept in one fold, so
+- **Unseen artists:** Scores come from 5-fold cross-validation with each artist's tracks kept in one fold, so
   no model is graded on an artist it trained on. The within-artist check splits each artist's own catalog
   across folds instead.
-- **Artist only vs with sound.** Every model runs twice, once on the artist alone and once with the 10 audio
+- **Artist only vs with sound:** Every model runs twice, once on the artist alone and once with the 10 audio
   features added, and the gap between them is sound's contribution. Pooled across eras, that gap is 5 to 11
   times its fold-to-fold spread, well clear of noise.
-- **The whole distribution, not just the average.** Quantile regression fits the 25th, 50th, 75th, 90th and
+- **Evaluating the whole distribution:** Quantile regression fits the 25th, 50th, 75th, 90th and
   99th percentiles of heard tracks; quantile XGBoost fits the 25th, 50th and 90th. Both are scored on the same
   held-out folds.
-- **Two model families.** Quantile regression gives effects in popularity points that are easy to read.
+- **Two model families:** Quantile regression gives effects in popularity points that are easy to read.
   XGBoost picks up curves the regression can't and roughly doubles sound's measured contribution, and its SHAP
   values show which sounds drive it.
 
 ## Limits
 
-- **Popularity is a November 2026 snapshot.** For old songs it measures which ones survived; for new songs,
+- **Popularity is a November 2026 snapshot.** For old songs it measures which ones survived; for new songs it measures
   which ones are catching on. Era comparisons mix the two, and survivorship is the obvious alternative to the
   streaming explanation in finding 4.
-- **Heard tracks only.** 30.6% of tracks score 0, so the distribution analysis covers the 1.83M tracks above
+- **Heard tracks only:** 30.6% of tracks score 0, so the distribution analysis covers the 1.83M tracks above
   0. Half the zeros sit on releases where every track is 0, which usually means a duplicate copy.
-- **Ten summary numbers per song.** Audio features describe sound coarsely, which caps how much sound can
-  explain here.
-- **The two model families disagree on one detail.** The linear model puts sound's peak higher up the
-  distribution; XGBoost, the better fit, puts it at typical tracks. I follow XGBoost.
-- **Year 2000.** About 5,000 extra tracks are dated 2000, likely a placeholder. I kept them in the data but
+- **Ten summary numbers per song:** Audio features are the most robust/comprehensive descriptors of a song's sound, which caps how much sound can explain.
+- **Year 2000:** About 5,000 extra tracks are dated 2000, likely a placeholder. I kept them in the data but
   set the era boundaries without that year.
 
 ## Data

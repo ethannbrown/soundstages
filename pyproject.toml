@@ -28,6 +28,8 @@ package = false
 [tool.ruff]
 target-version = "py311"
 line-length = 120
+# Exploratory notebook with saved outputs
+extend-exclude = ['analysis']
 # Folders with local modules (pytest also imports from tests/), so they sort as first-party
 src = [".", "src/prepare", "src/collect", "src/model", "tests"]
 

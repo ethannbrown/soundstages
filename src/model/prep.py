@@ -19,16 +19,11 @@ table['log_listeners'] = np.log10(df['listeners'].astype(float))
 table['log_duration'] = np.log(df['duration'].astype(float))
 table['genre'] = df['genre']
 
-# Eras and popularity bands
+# Eras
 table['era'] = pd.cut(
     df['year'].astype(float),
     [-np.inf, 1999, 2014, 2023, np.inf],
     labels=['<2000', '2000-2014', '2015-2023', '2024+'],
-)
-table['band'] = pd.cut(
-    table['popularity'],
-    [-1, 0, 3, 9, 19, 100],
-    labels=['Zero', 'Low', 'Mid', 'High', 'Top'],
 )
 for col in ['is_multi', 'is_short', 'is_long', 'is_spoken']:
     table[col] = df[col].astype(bool)

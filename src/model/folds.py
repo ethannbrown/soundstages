@@ -1,8 +1,12 @@
 import numpy as np
 import pandas as pd
 from sklearn.linear_model import LinearRegression
+from statsmodels.regression.quantile_regression import QuantReg
 
 from config import N_FOLDS
+
+QUANTILES = [0.25, 0.5, 0.75, 0.9, 0.99]
+CONTEXT = ['log_listeners', 'log_duration']
 
 AUDIO = [
     'acousticness',
@@ -109,6 +113,65 @@ def fit_linear(X, y, n_numeric, train, test, groups=None):
 
     model = LinearRegression().fit(X_train, y_train)
     return y_test, model.predict(X_test), model.coef_
+
+
+def fit_quantile(X, y, n_numeric, q, train, test):
+    """One fold of quantile regression. Returns test predictions and coefficients without the constant."""
+    X_train, X_test = standardize(X[train], X[test], n_numeric)
+    X_train = np.column_stack([np.ones(len(X_train)), X_train])
+    X_test = np.column_stack([np.ones(len(X_test)), X_test])
+    params = QuantReg(y[train], X_train).fit(q=q).params
+    return X_test @ params, params[1:]
+
+
+def pinball(y, pred, q) -> float:
+    diff = y - pred
+    return float(np.mean(np.maximum(q * diff, (q - 1) * diff)))
+
+
+def quantile_designs(df: pd.DataFrame):
+    """Context and audio designs, with year as categories (before 1960 in one) and unused categories dropped."""
+    year = df['year'].astype(int)
+    df = df.assign(
+        year_cat=year.astype(str).where(year >= 1960, '<1960').astype('category'),
+        genre=df['genre'].cat.remove_unused_categories(),
+    )
+    X_context, _ = design(df, CONTEXT, ['genre', 'year_cat'])
+    X_audio, names = design(df, CONTEXT + AUDIO, ['genre', 'year_cat'])
+    return X_context, X_audio, names
+
+
+def quantile_folds(df: pd.DataFrame):
+    """Intercept-only, background and audio quantile regressions on every between-artist fold.
+
+    Returns scores (quantile, fold, model, pinball, r1) and audio coefficients
+    (quantile, fold, feature, coef), per sd of each feature.
+    """
+    X_context, X_audio, names = quantile_designs(df)
+    y = df['popularity'].to_numpy()
+    models = [('background', X_context, len(CONTEXT)), ('audio', X_audio, len(CONTEXT + AUDIO))]
+
+    scores = []
+    coefs = []
+    for q in QUANTILES:
+        for fold, train, test in split(df, 'between'):
+            # Intercept only, the baseline for r1
+            null = QuantReg(y[train], np.ones(len(train))).fit(q=q).params[0]
+            loss_null = pinball(y[test], np.full(len(test), null), q)
+            scores.append({'quantile': q, 'fold': fold, 'model': 'intercept', 'pinball': loss_null, 'r1': 0.0})
+
+            for model, X, n_numeric in models:
+                pred, coef = fit_quantile(X, y, n_numeric, q, train, test)
+                loss = pinball(y[test], pred, q)
+                r1 = 1 - loss / loss_null
+                scores.append({'quantile': q, 'fold': fold, 'model': model, 'pinball': loss, 'r1': r1})
+
+            # Audio coefficients from the last fit
+            coef = dict(zip(names, coef, strict=True))
+            coefs += [{'quantile': q, 'fold': fold, 'feature': col, 'coef': coef[col]} for col in AUDIO]
+        print(f'Fit the q={q} regressions')
+
+    return pd.DataFrame(scores), pd.DataFrame(coefs)
 
 
 def frame(df, rows, model, setup, audio, fold, y_true, y_pred) -> pd.DataFrame:

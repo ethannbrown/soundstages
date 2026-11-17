@@ -19,12 +19,12 @@ def album_rules():
     return text
 
 
-# Replaces requests.get and time.sleep for the crawler and api.py tests
+# Replaces requests.get and time.sleep for the collector and api.py tests
 @pytest.fixture
 def api(monkeypatch):
     fake = FakeAPI()
     monkeypatch.setattr(requests, 'get', fake.get)
     monkeypatch.setattr(time, 'sleep', fake.sleeps.append)
     yield fake
-    # The crawlers catch every exception, so check unknown URLs here
+    # The collectors catch every exception, so check unknown URLs here
     assert fake.unknown == []

@@ -11,22 +11,22 @@ import config
 from fake_api import Resp
 
 # Pins how albums.py, tracks.py and features.py react to each kind of API response.
-# Each crawler runs for real, inside tmp_path, with requests.get replaced by a fake.
+# Each collector runs for real, inside tmp_path, with requests.get replaced by a fake.
 # Nothing here touches the network or the data folders.
 
 ROOT = Path(__file__).resolve().parent.parent
 BASE = 'https://api.reccobeats.com/v1'
 
 
-def run(crawler, paths, tmp_path, monkeypatch):
+def run(collector, paths, tmp_path, monkeypatch):
     for name, path in paths.items():
         assert tmp_path in path.parents
         monkeypatch.setattr(config, name, path)
-    monkeypatch.setattr(sys, 'argv', [crawler.script])
-    runpy.run_path(str(ROOT / 'src' / 'collect' / crawler.script), run_name='__main__')
+    monkeypatch.setattr(sys, 'argv', [collector.script])
+    runpy.run_path(str(ROOT / 'src' / 'collect' / collector.script), run_name='__main__')
 
 
-# What each crawler reads, where it writes, and what a good response looks like.
+# What each collector reads, where it writes, and what a good response looks like.
 # An item is an artist (albums.py), an album (tracks.py) or a batch (features.py).
 
 
@@ -190,7 +190,7 @@ class Ids:
         return {a.split('-')[0] for a in self.rows(path)['spotify']}
 
 
-CRAWLERS = {
+COLLECTORS = {
     'albums': Albums(),
     'tracks': Tracks(),
     'features': Features(),
@@ -198,8 +198,8 @@ CRAWLERS = {
 }
 
 
-def responses(crawler, case, item):
-    ok = Resp(200, crawler.body(item))
+def responses(collector, case, item):
+    ok = Resp(200, collector.body(item))
     return {
         '404': [Resp(404)],
         '429 then ok': [Resp(429, headers={'Retry-After': '7'}), ok],
@@ -213,7 +213,7 @@ def responses(crawler, case, item):
 
 
 # Two items side by side: 'ok' always succeeds, 'case' gets the response under test.
-# Columns: crawler, case, is 'case' in the log, is the output parquet written
+# Columns: collector, case, is 'case' in the log, is the output parquet written
 @pytest.mark.parametrize(
     'name, case, logged, written',
     [
@@ -240,20 +240,20 @@ def responses(crawler, case, item):
     ],
 )
 def test_two_items(api, tmp_path, monkeypatch, name, case, logged, written):
-    crawler = CRAWLERS[name]
-    paths = crawler.setup(tmp_path, ['ok', 'case'])
-    api.responses[crawler.url('ok')] = [Resp(200, crawler.body('ok'))]
-    api.responses[crawler.url('case')] = responses(crawler, case, 'case')
+    collector = COLLECTORS[name]
+    paths = collector.setup(tmp_path, ['ok', 'case'])
+    api.responses[collector.url('ok')] = [Resp(200, collector.body('ok'))]
+    api.responses[collector.url('case')] = responses(collector, case, 'case')
 
-    run(crawler, paths, tmp_path, monkeypatch)
+    run(collector, paths, tmp_path, monkeypatch)
 
     expected = {'ok', 'case'} if logged else {'ok'}
-    assert crawler.logged(paths[crawler.log]) == expected
-    assert paths[crawler.out].exists() == written
+    assert collector.logged(paths[collector.log]) == expected
+    assert paths[collector.out].exists() == written
 
 
 # 429 and 403 stop the whole run, so these use one item to keep thread order out of it.
-# Columns: crawler, case, calls made
+# Columns: collector, case, calls made
 @pytest.mark.parametrize(
     'name, case, calls',
     [
@@ -268,65 +268,65 @@ def test_two_items(api, tmp_path, monkeypatch, name, case, logged, written):
     ],
 )
 def test_stops(api, tmp_path, monkeypatch, name, case, calls):
-    crawler = CRAWLERS[name]
-    paths = crawler.setup(tmp_path, ['case'])
-    api.responses[crawler.url('case')] = responses(crawler, case, 'case')
+    collector = COLLECTORS[name]
+    paths = collector.setup(tmp_path, ['case'])
+    api.responses[collector.url('case')] = responses(collector, case, 'case')
 
-    run(crawler, paths, tmp_path, monkeypatch)
+    run(collector, paths, tmp_path, monkeypatch)
 
     assert len(api.calls) == calls
-    assert crawler.logged(paths[crawler.log]) == set()
-    assert not paths[crawler.out].exists()
+    assert collector.logged(paths[collector.log]) == set()
+    assert not paths[collector.out].exists()
 
 
-# How long each crawler waits before retrying
-@pytest.mark.parametrize('name', CRAWLERS)
+# How long each collector waits before retrying
+@pytest.mark.parametrize('name', COLLECTORS)
 @pytest.mark.parametrize(
     'case, wait',
     [('429 then ok', 7), ('429 no header then ok', 30), ('500 then ok', 45)],
 )
 def test_waits(api, tmp_path, monkeypatch, name, case, wait):
-    crawler = CRAWLERS[name]
-    paths = crawler.setup(tmp_path, ['case'])
-    api.responses[crawler.url('case')] = responses(crawler, case, 'case')
+    collector = COLLECTORS[name]
+    paths = collector.setup(tmp_path, ['case'])
+    api.responses[collector.url('case')] = responses(collector, case, 'case')
 
-    run(crawler, paths, tmp_path, monkeypatch)
+    run(collector, paths, tmp_path, monkeypatch)
 
     assert wait in api.sleeps
 
 
 # MAX_RETRIES is 3: the first try plus 3 retries, 45 s apart
-@pytest.mark.parametrize('name', CRAWLERS)
+@pytest.mark.parametrize('name', COLLECTORS)
 def test_retries(api, tmp_path, monkeypatch, name):
-    crawler = CRAWLERS[name]
-    paths = crawler.setup(tmp_path, ['ok', 'case'])
-    api.responses[crawler.url('ok')] = [Resp(200, crawler.body('ok'))]
-    api.responses[crawler.url('case')] = [Resp(500)]
+    collector = COLLECTORS[name]
+    paths = collector.setup(tmp_path, ['ok', 'case'])
+    api.responses[collector.url('ok')] = [Resp(200, collector.body('ok'))]
+    api.responses[collector.url('case')] = [Resp(500)]
 
-    run(crawler, paths, tmp_path, monkeypatch)
+    run(collector, paths, tmp_path, monkeypatch)
 
-    assert api.calls.count(crawler.url('case')) == 4
+    assert api.calls.count(collector.url('case')) == 4
     assert api.sleeps.count(45) == 3
 
 
 # Multi-page items: every page is fetched and logged
 @pytest.mark.parametrize('name', ['albums', 'tracks'])
 def test_pages(api, tmp_path, monkeypatch, name):
-    crawler = CRAWLERS[name]
-    paths = crawler.setup(tmp_path, ['case'])
-    api.responses[crawler.url('case', 0)] = [Resp(200, crawler.body('case', 0, pages=2))]
-    api.responses[crawler.url('case', 1)] = [Resp(200, crawler.body('case', 1, pages=2))]
+    collector = COLLECTORS[name]
+    paths = collector.setup(tmp_path, ['case'])
+    api.responses[collector.url('case', 0)] = [Resp(200, collector.body('case', 0, pages=2))]
+    api.responses[collector.url('case', 1)] = [Resp(200, collector.body('case', 1, pages=2))]
 
-    run(crawler, paths, tmp_path, monkeypatch)
+    run(collector, paths, tmp_path, monkeypatch)
 
-    assert len(crawler.rows(paths[crawler.log])) == 2
-    assert paths[crawler.out].exists()
+    assert len(collector.rows(paths[collector.log])) == 2
+    assert paths[collector.out].exists()
 
 
 # Each page gets its own retry budget (api.get counts per request): 3 retries on
 # page 0 and 1 on page 1 is fine. Before api.py the budget was shared across pages,
 # so they added up to 4 and the run stopped.
-# Columns: crawler, is the album/artist logged, is the output parquet written
+# Columns: collector, is the album/artist logged, is the output parquet written
 @pytest.mark.parametrize(
     'name, logged, written',
     [
@@ -335,48 +335,48 @@ def test_pages(api, tmp_path, monkeypatch, name):
     ],
 )
 def test_retry_budget_across_pages(api, tmp_path, monkeypatch, name, logged, written):
-    crawler = CRAWLERS[name]
-    paths = crawler.setup(tmp_path, ['case'])
-    page0 = Resp(200, crawler.body('case', 0, pages=2))
-    page1 = Resp(200, crawler.body('case', 1, pages=2))
-    api.responses[crawler.url('case', 0)] = [Resp(429)] * 3 + [page0]
-    api.responses[crawler.url('case', 1)] = [Resp(429), page1]
+    collector = COLLECTORS[name]
+    paths = collector.setup(tmp_path, ['case'])
+    page0 = Resp(200, collector.body('case', 0, pages=2))
+    page1 = Resp(200, collector.body('case', 1, pages=2))
+    api.responses[collector.url('case', 0)] = [Resp(429)] * 3 + [page0]
+    api.responses[collector.url('case', 1)] = [Resp(429), page1]
 
-    run(crawler, paths, tmp_path, monkeypatch)
+    run(collector, paths, tmp_path, monkeypatch)
 
-    assert crawler.logged(paths[crawler.log]) == ({'case'} if logged else set())
-    assert paths[crawler.out].exists() == written
+    assert collector.logged(paths[collector.log]) == ({'case'} if logged else set())
+    assert paths[collector.out].exists() == written
 
 
 # After an incomplete run, the next run asks only for what is missing,
 # then writes the parquet
-@pytest.mark.parametrize('name', CRAWLERS)
+@pytest.mark.parametrize('name', COLLECTORS)
 def test_rerun_after_connection_error(api, tmp_path, monkeypatch, name):
-    crawler = CRAWLERS[name]
-    paths = crawler.setup(tmp_path, ['ok', 'case'])
-    api.responses[crawler.url('ok')] = [Resp(200, crawler.body('ok'))]
-    api.responses[crawler.url('case')] = [requests.ConnectionError('reset')]
+    collector = COLLECTORS[name]
+    paths = collector.setup(tmp_path, ['ok', 'case'])
+    api.responses[collector.url('ok')] = [Resp(200, collector.body('ok'))]
+    api.responses[collector.url('case')] = [requests.ConnectionError('reset')]
 
-    run(crawler, paths, tmp_path, monkeypatch)
-    assert not paths[crawler.out].exists()
+    run(collector, paths, tmp_path, monkeypatch)
+    assert not paths[collector.out].exists()
 
     api.calls.clear()
-    api.responses[crawler.url('case')] = [Resp(200, crawler.body('case'))]
-    run(crawler, paths, tmp_path, monkeypatch)
+    api.responses[collector.url('case')] = [Resp(200, collector.body('case'))]
+    run(collector, paths, tmp_path, monkeypatch)
 
-    assert api.calls == [crawler.url('case')]
-    assert crawler.logged(paths[crawler.log]) == {'ok', 'case'}
-    assert paths[crawler.out].exists()
+    assert api.calls == [collector.url('case')]
+    assert collector.logged(paths[collector.log]) == {'ok', 'case'}
+    assert paths[collector.out].exists()
 
 
 # An incomplete run says so
-@pytest.mark.parametrize('name', CRAWLERS)
+@pytest.mark.parametrize('name', COLLECTORS)
 def test_early_stoppage_message(api, tmp_path, monkeypatch, capsys, name):
-    crawler = CRAWLERS[name]
-    paths = crawler.setup(tmp_path, ['case'])
-    api.responses[crawler.url('case')] = [Resp(500)]
+    collector = COLLECTORS[name]
+    paths = collector.setup(tmp_path, ['case'])
+    api.responses[collector.url('case')] = [Resp(500)]
 
-    run(crawler, paths, tmp_path, monkeypatch)
+    run(collector, paths, tmp_path, monkeypatch)
 
     assert 'Early stoppage, requires rerun.' in capsys.readouterr().out
 
@@ -385,14 +385,14 @@ def test_early_stoppage_message(api, tmp_path, monkeypatch, capsys, name):
 
 
 def test_album_rows(api, tmp_path, monkeypatch):
-    crawler = Albums()
-    paths = crawler.setup(tmp_path, ['a1', 'a2'])
-    api.responses[crawler.url('a1')] = [Resp(200, crawler.body('a1'))]
-    api.responses[crawler.url('a2')] = [Resp(200, {'totalPages': 0, 'content': []})]
+    collector = Albums()
+    paths = collector.setup(tmp_path, ['a1', 'a2'])
+    api.responses[collector.url('a1')] = [Resp(200, collector.body('a1'))]
+    api.responses[collector.url('a2')] = [Resp(200, {'totalPages': 0, 'content': []})]
 
-    run(crawler, paths, tmp_path, monkeypatch)
+    run(collector, paths, tmp_path, monkeypatch)
 
-    rows = sorted(crawler.rows(paths['LOG_A']), key=lambda r: r['uuid'])
+    rows = sorted(collector.rows(paths['LOG_A']), key=lambda r: r['uuid'])
     assert rows == [
         {
             'uuid': 'a1',
@@ -419,14 +419,14 @@ def test_album_rows(api, tmp_path, monkeypatch):
 
 
 def test_track_rows(api, tmp_path, monkeypatch):
-    crawler = Tracks()
-    paths = crawler.setup(tmp_path, ['al1', 'al2'])
-    api.responses[crawler.url('al1')] = [Resp(200, crawler.body('al1'))]
-    api.responses[crawler.url('al2')] = [Resp(200, {'totalPages': 0, 'content': []})]
+    collector = Tracks()
+    paths = collector.setup(tmp_path, ['al1', 'al2'])
+    api.responses[collector.url('al1')] = [Resp(200, collector.body('al1'))]
+    api.responses[collector.url('al2')] = [Resp(200, {'totalPages': 0, 'content': []})]
 
-    run(crawler, paths, tmp_path, monkeypatch)
+    run(collector, paths, tmp_path, monkeypatch)
 
-    rows = sorted(crawler.rows(paths['LOG_T']), key=lambda r: r['albumID'])
+    rows = sorted(collector.rows(paths['LOG_T']), key=lambda r: r['albumID'])
     assert rows == [
         {
             'albumID': 'al1',
@@ -455,16 +455,16 @@ def test_track_rows(api, tmp_path, monkeypatch):
 
 
 def test_feature_rows(api, tmp_path, monkeypatch):
-    crawler = Features()
-    paths = crawler.setup(tmp_path, ['b'])
+    collector = Features()
+    paths = collector.setup(tmp_path, ['b'])
     # Two tracks in one batch is not possible with these helpers, so build it here
     pd.DataFrame({'trackID': ['t1', 't2']}).to_parquet(paths['TRACKS_CLEAN'])
     found = {'id': 't1', **{f: 0.5 for f in FEATS}, 'key': 2, 'mode': 1}
     api.responses[f'{BASE}/audio-features?ids=t1,t2'] = [Resp(200, {'content': [found]})]
 
-    run(crawler, paths, tmp_path, monkeypatch)
+    run(collector, paths, tmp_path, monkeypatch)
 
-    log = crawler.rows(paths['LOG_F'])
+    log = collector.rows(paths['LOG_F'])
     assert list(log.columns) == ['trackID'] + FEATS
     assert log.set_index('trackID').loc['t1'].tolist() == [0.5] * 4 + [2] + [0.5] * 2 + [1] + [0.5] * 3
     assert log.set_index('trackID').loc['t2'].isna().all()

@@ -59,11 +59,17 @@ scores = []
 coefs = []
 for q in QUANTILES:
     for fold, train, test in split(df, 'between'):
+        # Intercept only, the baseline for r1
+        null = QuantReg(y[train], np.ones(len(train))).fit(q=q).params[0]
+        loss_null = pinball(y[test], np.full(len(test), null), q)
+
         pred, _ = fit_quantile(X_context, y, len(context), q, train, test)
-        scores.append({'quantile': q, 'fold': fold, 'audio': False, 'pinball': pinball(y[test], pred, q)})
+        loss = pinball(y[test], pred, q)
+        scores.append({'quantile': q, 'fold': fold, 'audio': False, 'pinball': loss, 'r1': 1 - loss / loss_null})
 
         pred, coef = fit_quantile(X_audio, y, n_audio, q, train, test)
-        scores.append({'quantile': q, 'fold': fold, 'audio': True, 'pinball': pinball(y[test], pred, q)})
+        loss = pinball(y[test], pred, q)
+        scores.append({'quantile': q, 'fold': fold, 'audio': True, 'pinball': loss, 'r1': 1 - loss / loss_null})
 
         # Audio coefficients, per sd of each feature
         coef = dict(zip(names, coef, strict=True))
@@ -82,6 +88,11 @@ wide = scores.pivot_table(index=['quantile', 'fold'], columns='audio', values='p
 gain = 100 * (1 - wide[True] / wide[False])
 for q in QUANTILES:
     print(f'At q={q}, audio cut pinball loss by {gain[q].mean():.1f}% (sd {gain[q].std():.1f}%) across folds')
+    r1 = scores[scores['quantile'] == q].groupby('audio')['r1'].agg(['mean', 'std'])
+    print(
+        f'Background-only r1 is {r1.loc[False, "mean"]:.3f} (sd {r1.loc[False, "std"]:.3f}), '
+        f'with audio {r1.loc[True, "mean"]:.3f} (sd {r1.loc[True, "std"]:.3f})'
+    )
     stats = coefs[coefs['quantile'] == q].groupby('feature')['coef'].agg(['mean', 'std'])
     for col in AUDIO:
         print(f'{col} {stats.loc[col, "mean"]:.2f} points per sd (sd {stats.loc[col, "std"]:.2f})')

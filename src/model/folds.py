@@ -1,0 +1,139 @@
+import numpy as np
+import pandas as pd
+from sklearn.linear_model import LinearRegression
+
+from config import N_FOLDS
+
+AUDIO = [
+    'acousticness',
+    'danceability',
+    'energy',
+    'instrumentalness',
+    'liveness',
+    'loudness',
+    'mode',
+    'speechiness',
+    'tempo',
+    'valence',
+]
+
+def assign_between(uuids: pd.Series, seed: int) -> pd.Series:
+    """Shuffle the artists, then artist i goes to fold i % N_FOLDS."""
+    uuids = uuids.astype(str)
+    artists = np.random.default_rng(seed).permutation(np.sort(uuids.unique()))
+    fold = dict(zip(artists, np.arange(len(artists)) % N_FOLDS, strict=True))
+    return uuids.map(fold).astype('int8')
+
+
+def assign_within(uuids: pd.Series, seed: int) -> pd.Series:
+    """Shuffle each artist's tracks and randomly assigns them to the folds."""
+    rng = np.random.default_rng(seed)
+    rows = pd.DataFrame({'uuid': uuids.astype(str).to_numpy(), 'key': rng.random(len(uuids))}, index=uuids.index)
+    artists = np.sort(rows['uuid'].unique())
+    start = pd.Series(rng.integers(0, N_FOLDS, len(artists)), index=artists)
+
+    rows = rows.sort_values(['uuid', 'key'])
+    fold = (rows.groupby('uuid').cumcount() + rows['uuid'].map(start)) % N_FOLDS
+    return fold.reindex(uuids.index).astype('int8')
+
+
+def split(df: pd.DataFrame, setup: str):
+    """Yield (fold, train, test) as row positions in df. Within uses in_within rows only."""
+    if setup == 'between':
+        rows = np.arange(len(df))
+        fold = df['fold_between'].to_numpy()
+    else:
+        rows = np.flatnonzero(df['in_within'].to_numpy())
+        fold = df['fold_within'].iloc[rows].astype(int).to_numpy()
+
+    for k in range(N_FOLDS):
+        yield k, rows[fold != k], rows[fold == k]
+
+
+def demean(train: np.ndarray, test: np.ndarray, g_train: np.ndarray, g_test: np.ndarray):
+    """Subtract each group's mean over the training rows from both train and test."""
+    train = np.asarray(train, dtype=float)
+    test = np.asarray(test, dtype=float)
+    vector = train.ndim == 1
+    if vector:
+        train, test = train[:, None], test[:, None]
+
+    size = max(g_train.max(), g_test.max()) + 1
+    counts = np.bincount(g_train, minlength=size)
+
+    # Groups with no training rows get a NaN mean, so a test row without one shows up
+    with np.errstate(invalid='ignore'):
+        means = np.column_stack(
+            [np.bincount(g_train, weights=train[:, j], minlength=size) / counts for j in range(train.shape[1])]
+        )
+    train, test = train - means[g_train], test - means[g_test]
+
+    if vector:
+        return train[:, 0], test[:, 0]
+    return train, test
+
+
+def within_target(y: np.ndarray, groups: np.ndarray, train: np.ndarray, test: np.ndarray):
+    """Popularity minus the artist's mean over training-fold rows only."""
+    return demean(y[train], y[test], groups[train], groups[test])
+
+
+def design(df: pd.DataFrame, numeric: list[str], categorical: list[str]):
+    """Numeric columns and one-hot encoded variables"""
+    dummies = pd.get_dummies(df[categorical], drop_first=True, dtype=float)
+    X = np.column_stack([df[numeric].to_numpy(dtype=float), dummies.to_numpy()])
+    return X, numeric + list(dummies.columns)
+
+
+def standardize(train: np.ndarray, test: np.ndarray, n_numeric: int):
+    """Scale the first n_numeric columns with the training rows' mean and sd."""
+    train, test = train.copy(), test.copy()
+    mean = train[:, :n_numeric].mean(axis=0)
+    sd = train[:, :n_numeric].std(axis=0)
+    train[:, :n_numeric] = (train[:, :n_numeric] - mean) / sd
+    test[:, :n_numeric] = (test[:, :n_numeric] - mean) / sd
+    return train, test
+
+
+def fit_linear(X, y, n_numeric, train, test, groups=None):
+    """One fold of linear regression. Returns test y, test predictions and coefficients.
+
+    With groups (within artists), both y and the features are demeaned by the
+    artist's training means (fixed effects).
+    """
+    X_train, X_test = standardize(X[train], X[test], n_numeric)
+    y_train, y_test = y[train], y[test]
+    if groups is not None:
+        X_train, X_test = demean(X_train, X_test, groups[train], groups[test])
+        y_train, y_test = within_target(y, groups, train, test)
+
+    model = LinearRegression().fit(X_train, y_train)
+    return y_test, model.predict(X_test), model.coef_
+
+
+def frame(df, rows, model, setup, audio, fold, y_true, y_pred) -> pd.DataFrame:
+    """Out-of-fold predictions in the shared schema."""
+    return pd.DataFrame(
+        {
+            'trackID': df['trackID'].iloc[rows].to_numpy(),
+            'model': model,
+            'setup': setup,
+            'audio': audio,
+            'fold': np.int8(fold),
+            'y_true': y_true,
+            'y_pred': y_pred,
+        }
+    )
+
+
+def mse(y_true, y_pred) -> float:
+    return float(np.mean((np.asarray(y_true, dtype=float) - np.asarray(y_pred, dtype=float)) ** 2))
+
+
+def rmse(y_true, y_pred) -> float:
+    return float(np.sqrt(mse(y_true, y_pred)))
+
+
+def r2(y_true, y_pred) -> float:
+    y_true = np.asarray(y_true, dtype=float)
+    return 1 - mse(y_true, y_pred) / float(np.var(y_true))

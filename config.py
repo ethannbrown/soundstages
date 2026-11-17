@@ -35,3 +35,9 @@ LOG_F = RAW / 'logF.csv'
 MAX_RETRIES = 3
 GENRE_COUNT = 19
 LISTENER_FLOOR = 100
+
+# Modeling
+MODEL_TABLE = INPUTS / 'model_table.parquet'
+PREDICTIONS = DATA / 'predictions'
+RESULTS = DATA / 'results'
+N_FOLDS = 5

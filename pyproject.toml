@@ -33,7 +33,7 @@ package = false
 target-version = "py311"
 line-length = 120
 # Folders with local modules (pytest also imports from tests/), so they sort as first-party
-src = [".", "src/prepare", "src/collect", "tests"]
+src = [".", "src/prepare", "src/collect", "src/model", "tests"]
 
 [tool.ruff.lint]
 select = ["E", "F", "UP", "B", "I"]
@@ -49,4 +49,4 @@ dev = [
 
 [tool.pytest.ini_options]
 testpaths = ['tests']
-pythonpath = ['.', 'src/prepare', 'src/collect']
+pythonpath = ['.', 'src/prepare', 'src/collect', 'src/model']

@@ -1,5 +1,4 @@
 import sys
-import time
 
 import numpy as np
 import pandas as pd
@@ -8,7 +7,6 @@ sys.path.append('.')  # Run from project root
 from config import DATASET, MODEL_TABLE, SEED
 from folds import AUDIO, assign_between, assign_within
 
-start = time.perf_counter()
 df = pd.read_parquet(DATASET)
 print(f'Loaded {len(df):,} tracks from {df["uuid"].nunique():,} artists')
 
@@ -54,4 +52,3 @@ print(f'Dealt their tracks into {len(sizes)} within-artist folds of {sizes.min()
 
 table.to_parquet(MODEL_TABLE)
 print(f'Saved {len(table):,} rows to {MODEL_TABLE.name}')
-print(f'Ran in {time.perf_counter() - start:.0f} s')

@@ -1,5 +1,4 @@
 import sys
-import time
 
 import numpy as np
 import pandas as pd
@@ -8,7 +7,6 @@ sys.path.append('.')  # Run from project root
 from config import MODEL_TABLE, PREDICTIONS
 from folds import design, fit_linear, frame, split
 
-start = time.perf_counter()
 df = pd.read_parquet(MODEL_TABLE)
 y = df['popularity'].to_numpy()
 genres = df['genre'].cat.codes.to_numpy()
@@ -43,4 +41,3 @@ PREDICTIONS.mkdir(exist_ok=True)
 out = pd.concat(out, ignore_index=True)
 out.to_parquet(PREDICTIONS / 'baselines.parquet')
 print(f'Saved {len(out):,} predictions to baselines.parquet')
-print(f'Ran in {time.perf_counter() - start:.0f} s')

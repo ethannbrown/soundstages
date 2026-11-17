@@ -1,5 +1,4 @@
 import sys
-import time
 
 import pandas as pd
 
@@ -8,7 +7,6 @@ from config import MODEL_TABLE, PREDICTIONS, RESULTS
 from folds import AUDIO, design, fit_linear, frame, split
 
 # The context regressions from baselines.py plus the ten audio features
-start = time.perf_counter()
 df = pd.read_parquet(MODEL_TABLE)
 y = df['popularity'].to_numpy()
 artists = df['uuid'].cat.codes.to_numpy()
@@ -44,4 +42,3 @@ mean = coefs.groupby(['setup', 'feature'])['coef'].mean()
 for setup in setups:
     top = mean[setup].abs().idxmax()
     print(f'Largest {setup}-artist audio coefficient is {top}, {mean[setup][top]:.2f} points per sd')
-print(f'Ran in {time.perf_counter() - start:.0f} s')

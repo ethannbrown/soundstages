@@ -134,13 +134,14 @@ uv run python src/model/prep.py
 uv run python src/model/baselines.py
 uv run python src/model/linear.py
 uv run python src/model/evaluate.py
-uv run python src/model/quantile.py
-uv run python src/model/quantile_era.py
-uv run python src/model/boost.py
+uv run python src/model/quantile.py --all
+uv run python src/model/quantile_era.py --all
+uv run python src/model/boost.py --all
 uv run python src/report/figures.py
 ```
 
-boost.py takes about an hour; everything else runs in minutes.
+Without --all, quantile.py, quantile_era.py and boost.py time one fit and stop. boost.py takes about an
+hour; everything else runs in minutes.
 
 Saving and checking outputs against a reference copy:
 
@@ -149,4 +150,4 @@ uv run python reference.py save
 uv run python reference.py check
 ```
 
-Tests: `uv run pytest`. Lint: `uv run ruff check .`
+Tests need the collection extra: `uv sync --extra collection`, then `uv run pytest`. Lint: `uv run ruff check .`
